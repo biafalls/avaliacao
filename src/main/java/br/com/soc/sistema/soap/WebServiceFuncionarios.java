@@ -9,6 +9,6 @@ import javax.jws.soap.SOAPBinding.Style;
 @SOAPBinding(style = Style.RPC)
 public interface WebServiceFuncionarios {
 	@WebMethod
-	public String buscarFuncionario(String codigo);
+	public String buscarFuncionario(Long codigo);
 	
 }

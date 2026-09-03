@@ -14,7 +14,7 @@ public class WebServiceFuncionariosImpl implements WebServiceFuncionarios {
 	}
 	
 	@Override
-	public String buscarFuncionario(String codigo) {		
-		return business.buscarFuncionarioPor(codigo).toString();
+	public String buscarFuncionario(Long codigo) {		
+		return business.buscarFuncionarioPorCodigo(codigo).toString();
 	}
 }

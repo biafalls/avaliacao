@@ -5,59 +5,87 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+import br.com.soc.sistema.exception.TechnicalException;
 import br.com.soc.sistema.vo.FuncionarioVo;
 
 public class FuncionarioDao extends Dao {
 	
-	public void insertFuncionario(FuncionarioVo funcionarioVo){
+	public void insertFuncionario(FuncionarioVo funcionarioVo) {
 		StringBuilder query = new StringBuilder("INSERT INTO funcionario (nm_funcionario) values (?)");
-		try(
-			Connection con = getConexao();
+		
+		try(Connection con = getConexao();
 			PreparedStatement  ps = con.prepareStatement(query.toString())){
 			
 			int i=1;
-			ps.setString(i++, funcionarioVo.getNome());
+			ps.setString(i, funcionarioVo.getNome());
 			ps.executeUpdate();
 		}catch (SQLException e) {
-			e.printStackTrace();
+			 throw new TechnicalException("Erro ao inserir funcionário",e);
 		}
 	}
 	
-	public List<FuncionarioVo> findAllFuncionarios(){
+	public boolean updateFuncionario(FuncionarioVo funcionarioVo) {
+		StringBuilder query = new StringBuilder("UPDATE funcionario SET nm_funcionario = ? WHERE rowid = ?");
+		
+		try(Connection con = getConexao();
+			PreparedStatement  ps = con.prepareStatement(query.toString())){
+			
+			int i = 1;
+			ps.setString(i++, funcionarioVo.getNome());
+			ps.setLong(i++, funcionarioVo.getRowid());
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			throw new TechnicalException("Erro ao editar funcionário",e);
+		} 
+	}
+	
+	public boolean deleteFuncionario(Long codigo) {
+		StringBuilder query = new StringBuilder("DELETE FROM funcionario WHERE rowid = ?");
+		
+		try(Connection con = getConexao();
+			PreparedStatement  ps = con.prepareStatement(query.toString())) {
+			
+			int i = 1;
+			ps.setLong(i, codigo);
+			return ps.executeUpdate() > 0;
+		} catch (SQLException e) {
+			throw new TechnicalException("Erro ao excluir funcionário",e);
+		}
+	}
+	
+	public List<FuncionarioVo> findAllFuncionarios() {
 		StringBuilder query = new StringBuilder("SELECT rowid id, nm_funcionario nome FROM funcionario");
-		try(
-			Connection con = getConexao();
+		
+		try(Connection con = getConexao();
 			PreparedStatement  ps = con.prepareStatement(query.toString());
+				
 			ResultSet rs = ps.executeQuery()){
 			
 			FuncionarioVo vo =  null;
 			List<FuncionarioVo> funcionarios = new ArrayList<>();
 			while (rs.next()) {
 				vo = new FuncionarioVo();
-				vo.setRowid(rs.getString("id"));
+				vo.setRowid(rs.getLong("id"));
 				vo.setNome(rs.getString("nome"));	
 				
 				funcionarios.add(vo);
 			}
 			return funcionarios;
-		}catch (SQLException e) {
-			e.printStackTrace();
+		} catch (SQLException e) {
+			throw new TechnicalException("Erro ao consultar funcionários",e);
 		}
-		
-		return Collections.emptyList();
 	}
 	
-	public List<FuncionarioVo> findAllByNome(String nome){
+	public List<FuncionarioVo> findAllByNome(String nome) {
 		StringBuilder query = new StringBuilder("SELECT rowid id, nm_funcionario nome FROM funcionario ")
-								.append("WHERE lower(nm_funcionario) like lower(?)");
+								.append("WHERE nm_funcionario like ?");
 		
 		try(Connection con = getConexao();
 			PreparedStatement ps = con.prepareStatement(query.toString())){
-			int i = 1;
 			
+			int i = 1;
 			ps.setString(i, "%"+nome+"%");
 			
 			try(ResultSet rs = ps.executeQuery()){
@@ -66,42 +94,40 @@ public class FuncionarioDao extends Dao {
 				
 				while (rs.next()) {
 					vo = new FuncionarioVo();
-					vo.setRowid(rs.getString("id"));
+					vo.setRowid(rs.getLong("id"));
 					vo.setNome(rs.getString("nome"));	
 					
 					funcionarios.add(vo);
 				}
 				return funcionarios;
 			}
-		}catch (SQLException e) {
-			e.printStackTrace();
-		}		
-		return Collections.emptyList();
+		} catch (SQLException e) {
+			throw new TechnicalException("Erro ao consultar funcionários",e);
+		}	
 	}
 	
-	public FuncionarioVo findByCodigo(Integer codigo){
+	public FuncionarioVo findByCodigo(Long codigo){
 		StringBuilder query = new StringBuilder("SELECT rowid id, nm_funcionario nome FROM funcionario ")
 								.append("WHERE rowid = ?");
 		
 		try(Connection con = getConexao();
 			PreparedStatement ps = con.prepareStatement(query.toString())){
-			int i = 1;
 			
-			ps.setInt(i, codigo);
+			int i = 1;
+			ps.setLong(i, codigo);
 			
 			try(ResultSet rs = ps.executeQuery()){
 				FuncionarioVo vo =  null;
 				
 				while (rs.next()) {
 					vo = new FuncionarioVo();
-					vo.setRowid(rs.getString("id"));
+					vo.setRowid(rs.getLong("id"));
 					vo.setNome(rs.getString("nome"));	
 				}
 				return vo;
 			}
 		}catch (SQLException e) {
-			e.printStackTrace();
-		}		
-		return null;
+			throw new TechnicalException("Erro ao consultar funcionário",e);
+		}
 	}
 }
