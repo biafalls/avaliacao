@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"  pageEncoding="UTF8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF8"%>
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <!DOCTYPE html>
 <html>
@@ -6,22 +6,31 @@
 		<meta charset="UTF8">
 		<title><s:text name="label.titulo.pagina.consulta"/></title>
 		<link rel='stylesheet' href='webjars/bootstrap/5.1.3/css/bootstrap.min.css'>
+		<link rel="stylesheet" href="css/style.css">
 	</head>
-	<body class="bg-secondary">	
+	<body>	
 		<div class="container">
 			<div class="row mt-5 mb-2">
 				<div class="col-sm p-0">
+				
+					<s:if test="hasActionErrors()">
+    					<div class="alert alert-danger py-2 px-3 mb-3" role="alert">
+       						 <s:actionerror/>
+    					</div>
+					</s:if>
+					
 					<s:form action="/filtrarFuncionarios.action">
 						<div class="input-group">
 							<span class="input-group-text">
 								<strong><s:text name="label.buscar.por"/></strong>
 							</span>	
+								<s:text name="label.escolha" var="labelEscolha"/>
 								<s:select  
 									cssClass="form-select" 
 									name="filtrar.opcoesCombo" 
 									list="listaOpcoesCombo"  
 									headerKey=""  
-									headerValue="Escolha..." 
+									headerValue="%{#labelEscolha}" 
 									listKey="%{codigo}" 
 									listValueKey="%{descricao}"
 									value="filtrar.opcoesCombo.codigo"									
@@ -35,7 +44,7 @@
 			</div>
 
 			<div class="row">
-				<table class="table table-light table-striped align-middle">
+				<table class="table align-middle">
 					<thead>
 						<tr>
 							<th><s:text name="label.id"/></th>
@@ -54,11 +63,15 @@
 										<s:param name="funcionarioVo.rowid" value="rowid"></s:param>
 									</s:url>
 
-									<a href="${editar}" class="btn btn-warning text-white">
+									<a href="${editar}" class="btn btn-warning">
 										<s:text name="label.editar"/>
 									</a>
+									
+									<s:url action="excluirFuncionarios" var="excluir">
+									    <s:param name="funcionarioVo.rowid" value="rowid"/>
+									</s:url>
 
-									<a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarExclusao">
+									<a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmarExclusao" data-url="${excluir}">
 										<s:text name="label.excluir"/>
 									</a>
 								</td>
@@ -66,7 +79,7 @@
 						</s:iterator>
 					</tbody>
 					
-					<tfoot class="table-secondary">
+					<tfoot>
 						<tr>
 							<td colspan="3">
 								<s:url action="novoFuncionarios" var="novo"/>
@@ -114,5 +127,6 @@
 		</div>
 		
 		<script src="webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
+		<script src="js/funcionario.js"></script>	
 	</body>
 </html>
