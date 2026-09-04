@@ -13,9 +13,15 @@
 	
     <package name="br.com.soc.sistema" extends="struts-default" strict-method-invocation="false">
         <action name="*Funcionarios" class="br.com.soc.sistema.action.FuncionarioAction" method="{1}">
-        	<result name="success">/funcionario/cadFuncionario_b.jsp</result>
-            <result name="input">/funcionario/cadFuncionario_i.jsp</result>
+        	<result name="success">/funcionario/busca-funcionario.jsp</result>
+            <result name="input">/funcionario/form-funcionario.jsp</result>
         	<result name="redirect" type="redirectAction">todosFuncionarios</result>
+        </action>
+        
+        <action name="*Agendas" class="br.com.soc.sistema.action.AgendaAction" method="{1}">
+        	<result name="success">/agenda/busca-agenda.jsp</result>
+            <result name="input">/agenda/form-agenda.jsp</result>
+        	<result name="redirect" type="redirectAction">todasAgendas</result>
         </action>
     </package>
 
