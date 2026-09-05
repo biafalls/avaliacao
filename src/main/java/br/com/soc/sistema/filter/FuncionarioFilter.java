@@ -1,34 +1,14 @@
 package br.com.soc.sistema.filter;
 
-import br.com.soc.sistema.infra.OpcoesComboBuscar;
+import java.util.Arrays;
+import java.util.List;
 
-public class FuncionarioFilter {
-	private OpcoesComboBuscar opcoesCombo;
-	private String valorBusca;
+import br.com.soc.sistema.enums.OpcoesComboBuscar;
 
-	public String getValorBusca() {
-		return valorBusca;
-	}
-
-	public FuncionarioFilter setValorBusca(String valorBusca) {
-		this.valorBusca = valorBusca;
-		return this;
-	}
-
-	public OpcoesComboBuscar getOpcoesCombo() {
-		return opcoesCombo;
-	}
-
-	public FuncionarioFilter setOpcoesCombo(String codigo) {
-		this.opcoesCombo = OpcoesComboBuscar.buscarPor(codigo);
-		return this;
-	}	
-	
-	public boolean isNullOpcoesCombo() {
-		return this.getOpcoesCombo() == null;
-	}
-	
-	public static FuncionarioFilter builder() {
-		return new FuncionarioFilter();
-	}
+public class FuncionarioFilter extends BaseFilter {
+	@Override
+    public List<OpcoesComboBuscar> getOpcoesDisponiveis() {
+        return Arrays.asList(OpcoesComboBuscar.ID,OpcoesComboBuscar.NOME
+        );
+    }
 }

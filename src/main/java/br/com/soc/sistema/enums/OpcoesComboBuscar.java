@@ -1,4 +1,4 @@
-package br.com.soc.sistema.infra;
+package br.com.soc.sistema.enums;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,12 +8,17 @@ import java.util.Optional;
 import br.com.soc.sistema.exception.BusinessException;
 
 public enum OpcoesComboBuscar {
-	ID("1", "ID"), 
-	NOME("2", "NOME");
+	ID("1", "ID"),
+    NOME("2", "NOME"),
+    PERIODO("3", "PERIODO"),
+    NOME_FUNCIONARIO("4", "FUNCIONARIO"),
+    NOME_AGENDA("5", "AGENDA"),
+    DATA("6", "DATA"),
+    HORA("7", "HORA");
 	
 	private String codigo;
 	private String descricao;
-	private final static Map<String, OpcoesComboBuscar> opcoes = new HashMap<>();
+	private static final Map<String, OpcoesComboBuscar> opcoes = new HashMap<>();
 	
 	static {
 		Arrays.asList(OpcoesComboBuscar.values())

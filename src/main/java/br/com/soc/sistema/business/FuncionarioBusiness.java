@@ -18,11 +18,6 @@ public class FuncionarioBusiness {
 		this.dao = new FuncionarioDao();
 	}
 	
-	public List<FuncionarioVo> trazerTodosOsFuncionarios(){
-		return dao.findAllFuncionarios();
-	}	
-	
-	
 	public void cadastrarFuncionario(FuncionarioVo funcionarioVo) {
 		normalizarEValidarNome(funcionarioVo);
 
@@ -39,22 +34,35 @@ public class FuncionarioBusiness {
 	}
 	
 	public void excluirFuncionario(Long codigo) {
+		if (dao.findSeFuncionarioTemCompromisso(codigo)) 
+			throw new BusinessException("O funcionário possui compromissos. Não pode ser deletado.");
+		
 	    boolean excluido = dao.deleteFuncionario(codigo);
 
 	    if (!excluido)
 	        throw new BusinessException(FUNCIONARIO_NAO_ENCONTRADO);
 	}
 	
-	public FuncionarioVo buscarFuncionarioPorCodigo(Long codigo) {
-		 return dao.findByCodigo(codigo);
+	public FuncionarioVo buscarFuncionarioParaEdicao(Long codigo) {
+
+		FuncionarioVo funcionario = dao.findByCodigo(codigo);
+
+	    if (funcionario == null)
+	        throw new BusinessException(FUNCIONARIO_NAO_ENCONTRADO);
+
+	    return funcionario;
 	}
-	
+
 	public List<FuncionarioVo> buscarFuncionariosPorNome(String nome) {
 
 	    String nomeNormalizado = NormalizadorTexto.normalizarEspacos(nome);
 
 	    return dao.findAllByNome(nomeNormalizado);
 	}
+	
+	public List<FuncionarioVo>  buscarTodosOsFuncionarios() {
+		return dao.findAllFuncionarios();
+	}	
 	
 	public List<FuncionarioVo> filtrarFuncionarios(FuncionarioFilter filter) {
 
@@ -66,7 +74,7 @@ public class FuncionarioBusiness {
 
 	            Long codigo = converterCodigo(filter.getValorBusca());
 
-	            FuncionarioVo funcionario = buscarFuncionarioPorCodigo(codigo);
+	            FuncionarioVo funcionario = dao.findByCodigo(codigo);
 
 	            if (funcionario != null) 
 	                funcionarios.add(funcionario);
@@ -75,6 +83,9 @@ public class FuncionarioBusiness {
 	        case NOME:
 	            funcionarios.addAll(buscarFuncionariosPorNome(filter.getValorBusca()));
 	            break;
+	            
+	        default:
+	            throw new BusinessException("Opção de busca inválida para funcionário.");
 	    }
 
 	    return funcionarios;

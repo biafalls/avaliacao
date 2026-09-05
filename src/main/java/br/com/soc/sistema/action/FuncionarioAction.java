@@ -1,15 +1,14 @@
 package br.com.soc.sistema.action;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import br.com.soc.sistema.business.FuncionarioBusiness;
+import br.com.soc.sistema.enums.OpcoesComboBuscar;
 import br.com.soc.sistema.exception.BusinessException;
 import br.com.soc.sistema.exception.TechnicalException;
 import br.com.soc.sistema.filter.FuncionarioFilter;
 import br.com.soc.sistema.infra.Action;
-import br.com.soc.sistema.infra.OpcoesComboBuscar;
 import br.com.soc.sistema.vo.FuncionarioVo;
 
 public class FuncionarioAction extends Action {
@@ -20,7 +19,7 @@ public class FuncionarioAction extends Action {
 	private FuncionarioVo funcionarioVo = new FuncionarioVo();
 	
 	private void carregarFuncionarios() {
-		funcionarios = business.trazerTodosOsFuncionarios();
+		funcionarios = business.buscarTodosOsFuncionarios();
 	}
 	
 	public String todos() {
@@ -40,11 +39,11 @@ public class FuncionarioAction extends Action {
 	public String filtrar() {	
 		  try {
 			  
-			  if (!validarFiltroPesquisa()) {
-		            carregarFuncionarios();
-		            return SUCCESS;
-		      }
-			  
+			  if (!validarFiltroPesquisa()){
+					carregarFuncionarios();
+					return SUCCESS;
+				}
+
 			  funcionarios = business.filtrarFuncionarios(filtrar);
 
 		      if (funcionarios.isEmpty())
@@ -52,6 +51,7 @@ public class FuncionarioAction extends Action {
 		        
 		    } catch (NumberFormatException e) {
 		        addActionError("O código informado deve ser numérico.");
+		        carregarFuncionarios();
 		        
 		    } catch (TechnicalException e) {
 
@@ -92,11 +92,12 @@ public class FuncionarioAction extends Action {
 		
 		try {
 
-	        funcionarioVo = business.buscarFuncionarioPorCodigo(funcionarioVo.getRowid());
+	        funcionarioVo = business.buscarFuncionarioParaEdicao(funcionarioVo.getRowid());
 	        return INPUT;
 
 	    } catch (BusinessException e) {
 	        addActionError(e.getMessage());
+	        carregarFuncionarios();
 	        return SUCCESS;
 
 	    } catch (TechnicalException e) {
@@ -106,10 +107,8 @@ public class FuncionarioAction extends Action {
 	}
 	
 	public String excluir() {
-	    if (funcionarioVo.getRowid() == null) {
-	        addActionError("Funcionário não encontrado.");
+	    if (funcionarioVo.getRowid() == null) 
 	        return REDIRECT;
-	    }
 
 	    try {
 	        business.excluirFuncionario(funcionarioVo.getRowid());
@@ -117,12 +116,13 @@ public class FuncionarioAction extends Action {
 
 	    } catch (BusinessException e) {
 	        addActionError(e.getMessage());
+	        carregarFuncionarios();
+	        return SUCCESS;
 
 	    } catch (TechnicalException e) {
 	        addActionError( "Não foi possível excluir o funcionário. Tente novamente.");
+	        return SUCCESS;
 	    }
-
-	    return SUCCESS;
 	}
 	
 	private boolean validarFiltroPesquisa() {
@@ -141,7 +141,7 @@ public class FuncionarioAction extends Action {
 	}
 	
 	public List<OpcoesComboBuscar> getListaOpcoesCombo(){
-		return Arrays.asList(OpcoesComboBuscar.values());
+		return filtrar.getOpcoesDisponiveis();
 	}
 	
 	public List<FuncionarioVo> getFuncionarios() {

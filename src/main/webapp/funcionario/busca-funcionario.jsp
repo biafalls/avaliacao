@@ -129,6 +129,6 @@
 		</div>
 		
 		<script src="webjars/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-		<script src="js/funcionario.js"></script>	
+		<script src="js/modal-excluir.js"></script>	
 	</body>
 </html>
