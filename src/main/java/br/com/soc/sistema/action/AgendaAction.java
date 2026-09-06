@@ -1,43 +1,166 @@
 package br.com.soc.sistema.action;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import br.com.soc.sistema.business.AgendaBusiness;
+import br.com.soc.sistema.enums.OpcoesComboBuscar;
+import br.com.soc.sistema.enums.PeriodoDisponivel;
+import br.com.soc.sistema.exception.BusinessException;
+import br.com.soc.sistema.exception.TechnicalException;
+import br.com.soc.sistema.filter.AgendaFilter;
 import br.com.soc.sistema.infra.Action;
-import br.com.soc.sistema.infra.OpcoesComboBuscar;
+import br.com.soc.sistema.vo.AgendaVo;
 
 public class AgendaAction extends Action {
 	
-public String todas() {
+	private List<AgendaVo> agendas = new ArrayList<>();
+	private AgendaBusiness business = new AgendaBusiness();
+	private AgendaFilter filtrar = new AgendaFilter();
+	private AgendaVo agendaVo = new AgendaVo();
+	private String codigoPeriodo;
+	
+	private void carregarFuncionarios() {
+		agendas = business.buscarTodasAsAgendas();
+	}
+	
+	public String todas() {
+		try {
+			agendas = business.buscarTodasAsAgendas();
+			
+			if(agendas.isEmpty()) 
+				addActionError("Nenhuma agenda cadastrada.");
+			
+		} catch (TechnicalException e) {
+			addActionError(e.getMessage());
+		}
 		
 		return SUCCESS;
 	}
 	
 	public String filtrar() {	
+		try {
+			agendas = business.filtrarAgendas(filtrar);
+			
+			if (agendas.isEmpty())
+				addActionError("Agenda não encontrada.");
+			
+		} catch (BusinessException e) {
+			addActionError(e.getMessage());
+			
+		} catch (TechnicalException e) {
+	        addActionError(e.getMessage());
+	    }    
 		return SUCCESS;
 	}
 	
 	public String nova() {
-		//if(funcionarioVo.getNome() == null)
-			return INPUT;
-		
-	//	return REDIRECT;
+		return INPUT;
+	}
+	
+	public String salvar() {
+		try {
+	        agendaVo.setPeriodoDisponivel(PeriodoDisponivel.buscarPor(codigoPeriodo));
+
+	        if (agendaVo.getRowid() == null) {
+	            business.cadastrarAgenda(agendaVo);
+	        } else {
+	            business.atualizarAgenda(agendaVo);
+	        }
+
+	        return REDIRECT;
+
+	    } catch (BusinessException e) {
+	    	addFieldError("agendaVo.nome", e.getMessage());
+	        return INPUT;
+
+	    } catch (TechnicalException e) {
+	        addActionError(e.getMessage());
+	        return INPUT;
+	    }
 	}
 	
 	public String editar() {
-	//	if(funcionarioVo.getRowid() == null)
-	//		return REDIRECT;
+		if(agendaVo.getRowid() == null)
+			return REDIRECT;
 		
-		
-	        return INPUT;
+		try {
+			agendaVo = business.buscarAgendaParaEdicao(agendaVo.getRowid());
+			codigoPeriodo = agendaVo.getPeriodoDisponivel().getCodigo();
+			return INPUT;
+			
+		} catch (BusinessException e) {
+			addActionError(e.getMessage());
+			return SUCCESS;
+		} catch (TechnicalException e) {
+	        addActionError(e.getMessage());
+	        return SUCCESS;
+	    }    
 	}
 	
 	public String excluir() {
+		if(agendaVo.getRowid() == null)
+			return REDIRECT;
 		
-	    return SUCCESS;
+		try {
+			business.excluirAgenda(agendaVo.getRowid());
+			return REDIRECT;
+			
+		} catch (BusinessException e) {
+			addActionError(e.getMessage());
+			return SUCCESS;
+		} catch (TechnicalException e) {
+	        addActionError(e.getMessage());
+	        return SUCCESS;
+	    }    
 	}
 	
 	public List<OpcoesComboBuscar> getListaOpcoesCombo(){
-		return Arrays.asList(OpcoesComboBuscar.values());
+		return filtrar.getOpcoesDisponiveis();
+	}
+	
+	public List<PeriodoDisponivel> getListaPeriodos() {
+		return Arrays.asList(PeriodoDisponivel.values());
+	}
+	
+	public String getCodigoPeriodo() {
+	    return codigoPeriodo;
+	}
+
+	public void setCodigoPeriodo(String codigoPeriodo) {
+	    this.codigoPeriodo = codigoPeriodo;
+	}
+
+	public List<AgendaVo> getAgendas() {
+		return agendas;
+	}
+
+	public void setAgendas(List<AgendaVo> agendas) {
+		this.agendas = agendas;
+	}
+
+	public AgendaBusiness getBusiness() {
+		return business;
+	}
+
+	public void setBusiness(AgendaBusiness business) {
+		this.business = business;
+	}
+
+	public AgendaFilter getFiltrar() {
+		return filtrar;
+	}
+
+	public void setFiltrar(AgendaFilter filtrar) {
+		this.filtrar = filtrar;
+	}
+
+	public AgendaVo getAgendaVo() {
+		return agendaVo;
+	}
+
+	public void setAgendaVo(AgendaVo agendaVo) {
+		this.agendaVo = agendaVo;
 	}
 }
