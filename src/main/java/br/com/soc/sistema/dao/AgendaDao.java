@@ -144,7 +144,7 @@ public class AgendaDao extends Dao {
 		try(Connection con = getConexao();
 			PreparedStatement ps = con.prepareStatement(QUERY_SELECT_TUDO);
 				
-			ResultSet rs = ps.executeQuery();) {
+			ResultSet rs = ps.executeQuery()) {
 			
 			AgendaVo vo = null;
 			List<AgendaVo> agendas = new ArrayList<>();

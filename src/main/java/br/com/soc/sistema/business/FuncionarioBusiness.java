@@ -34,10 +34,7 @@ public class FuncionarioBusiness {
 	}
 	
 	public void excluirFuncionario(Long codigo) {
-		if (dao.findSeFuncionarioTemCompromisso(codigo)) 
-			throw new BusinessException("O funcionário possui compromissos. Não pode ser deletado.");
-		
-	    boolean excluido = dao.deleteFuncionario(codigo);
+	    boolean excluido = dao.deleteFuncionarioComCompromisso(codigo);
 
 	    if (!excluido)
 	        throw new BusinessException(FUNCIONARIO_NAO_ENCONTRADO);

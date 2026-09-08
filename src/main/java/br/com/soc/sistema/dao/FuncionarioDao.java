@@ -39,33 +39,46 @@ public class FuncionarioDao extends Dao {
 		} 
 	}
 	
-	public boolean deleteFuncionario(Long codigo) {
-		String query = "DELETE FROM funcionario WHERE rowid = ?";
+	public boolean deleteFuncionarioComCompromisso(Long codigo) {
+		Connection con = null;
 		
-		try(Connection con = getConexao();
-			PreparedStatement  ps = con.prepareStatement(query)) {
-			
-			ps.setLong(1, codigo);
-			return ps.executeUpdate() > 0;
+		try {
+			con = getConexao();
+			con.setAutoCommit(false);
+
+			deleteCompromissosDoFuncionario(con, codigo);
+
+			boolean funcionarioExcluido = deleteFuncionario(con, codigo);
+
+			if (!funcionarioExcluido) {
+				con.rollback();
+				return false;
+			}
+
+			con.commit();
+			return true;
+
 		} catch (SQLException e) {
-			throw new TechnicalException("Erro ao excluir funcionário",e);
-		}
-	}
-	
-	public boolean findSeFuncionarioTemCompromisso(Long codigo) {
-		String query = "SELECT f.rowid FROM funcionario f INNER JOIN compromisso c "
-				+ "ON f.rowid = c.rowid_funcionario WHERE f.rowid = ?";
-		
-		try(Connection con = getConexao();
-			PreparedStatement ps = con.prepareStatement(query)){
-			
-			ps.setLong(1, codigo);
-			
-		    try (ResultSet rs = ps.executeQuery()) {
-		    	return rs.next();
-	        }
-		}catch (SQLException e) {
-			throw new TechnicalException("Erro ao consultar compromissos do funcionário",e);
+			if (con != null) {
+				try {
+					con.rollback();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+
+			throw new TechnicalException(
+				"Erro ao excluir funcionário e seus compromissos.", e
+			);
+
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	
@@ -141,5 +154,26 @@ public class FuncionarioDao extends Dao {
 		} catch (SQLException e) {
 			throw new TechnicalException("Erro ao consultar funcionários",e);
 		}
+	}
+	
+	private void deleteCompromissosDoFuncionario(Connection con, Long codigoFuncionario) throws SQLException {
+
+	    String query = "DELETE FROM compromisso WHERE rowid_funcionario = ?";
+
+	    try (PreparedStatement ps = con.prepareStatement(query)) {
+	        ps.setLong(1, codigoFuncionario);
+	        ps.executeUpdate();
+	    }
+	}
+	
+	private boolean deleteFuncionario(Connection con, Long codigo) throws SQLException {
+
+	    String query = "DELETE FROM funcionario WHERE rowid = ?";
+
+	    try (PreparedStatement ps = con.prepareStatement(query)) {
+	        ps.setLong(1, codigo);
+
+	        return ps.executeUpdate() > 0;
+	    }
 	}
 }

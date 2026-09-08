@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.soc.sistema.dao.AgendaDao;
+import br.com.soc.sistema.dao.CompromissoDao;
 import br.com.soc.sistema.enums.PeriodoDisponivel;
 import br.com.soc.sistema.exception.BusinessException;
 import br.com.soc.sistema.filter.AgendaFilter;
@@ -14,10 +15,13 @@ import br.com.soc.sistema.vo.FuncionarioVo;
 public class AgendaBusiness {
 	
 	private static final String AGENDA_NAO_ENCONTRADA = "Agenda não encontrada.";
+	private static final String AGENDA_POSSUI_COMPROMISSOS = "Não é possível excluir uma agenda que possui compromissos cadastrados.";
 	private AgendaDao dao;
+	private CompromissoDao compromissoDao;
 	
 	public AgendaBusiness() {
 		this.dao = new AgendaDao();
+		this.compromissoDao = new CompromissoDao();
 	}
 	
 	public void cadastrarAgenda(AgendaVo agendaVo) {
@@ -36,6 +40,9 @@ public class AgendaBusiness {
 	}
 	
 	public void excluirAgenda(Long codigo) {
+		if (compromissoDao.existeCompromissoPorAgenda(codigo))
+			throw new BusinessException(AGENDA_POSSUI_COMPROMISSOS);
+		
 		boolean excluido = dao.deleteAgenda(codigo);
 		
 		if (!excluido)
@@ -97,9 +104,9 @@ public class AgendaBusiness {
 	}
 	
 	private void normalizarEValidarNome(AgendaVo agendaVo) {
-		 String nome = NormalizadorTexto.normalizarEspacos(agendaVo.getNome());
+		String nome = NormalizadorTexto.normalizarEspacos(agendaVo.getNome());
 		 
-		 if (nome == null || nome.isEmpty())
+		if (nome == null || nome.isEmpty())
 			 throw new BusinessException("O nome deve ser preenchido.");
 
 		agendaVo.setNome(nome);

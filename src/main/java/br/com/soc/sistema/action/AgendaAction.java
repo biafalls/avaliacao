@@ -21,13 +21,13 @@ public class AgendaAction extends Action {
 	private AgendaVo agendaVo = new AgendaVo();
 	private String codigoPeriodo;
 	
-	private void carregarFuncionarios() {
+	private void carregarAgendas() {
 		agendas = business.buscarTodasAsAgendas();
 	}
 	
 	public String todas() {
 		try {
-			agendas = business.buscarTodasAsAgendas();
+			carregarAgendas();
 			
 			if(agendas.isEmpty()) 
 				addActionError("Nenhuma agenda cadastrada.");
@@ -48,6 +48,7 @@ public class AgendaAction extends Action {
 			
 		} catch (BusinessException e) {
 			addActionError(e.getMessage());
+			carregarAgendas();
 			
 		} catch (TechnicalException e) {
 	        addActionError(e.getMessage());
@@ -92,7 +93,9 @@ public class AgendaAction extends Action {
 			
 		} catch (BusinessException e) {
 			addActionError(e.getMessage());
+			carregarAgendas();
 			return SUCCESS;
+			
 		} catch (TechnicalException e) {
 	        addActionError(e.getMessage());
 	        return SUCCESS;
@@ -109,7 +112,9 @@ public class AgendaAction extends Action {
 			
 		} catch (BusinessException e) {
 			addActionError(e.getMessage());
+			carregarAgendas();
 			return SUCCESS;
+			
 		} catch (TechnicalException e) {
 	        addActionError(e.getMessage());
 	        return SUCCESS;
