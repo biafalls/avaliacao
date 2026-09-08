@@ -23,6 +23,12 @@
             <result name="input">/agenda/form-agenda.jsp</result>
         	<result name="redirect" type="redirectAction">todasAgendas</result>
         </action>
+        
+        <action name="*Compromissos" class="br.com.soc.sistema.action.CompromissoAction" method="{1}">
+        	<result name="success">/compromisso/busca-compromisso.jsp</result>
+            <result name="input">/compromisso/form-compromisso.jsp</result>
+        	<result name="redirect" type="redirectAction">todosCompromissos</result>
+        </action>
     </package>
 
 </struts>
