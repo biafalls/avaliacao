@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,7 @@ public class CompromissoDao extends Dao{
 			ps.setDate(3, Date.valueOf(compromissoVo.getData()));
 			ps.setTime(4, Time.valueOf(LocalTime.parse(compromissoVo.getHorario())));
 			ps.executeUpdate();
+			
 		} catch (SQLException e) {
 			throw new TechnicalException("Erro ao inserir compromisso",e);
 		}
@@ -59,6 +61,7 @@ public class CompromissoDao extends Dao{
 			ps.setTime(4, Time.valueOf(LocalTime.parse(compromissoVo.getHorario())));
 			ps.setLong(5, compromissoVo.getRowid());
 			return ps.executeUpdate() > 0;
+			
 		} catch (SQLException e) {
 			throw new TechnicalException("Erro ao editar compromisso",e);
 		} 
@@ -70,11 +73,12 @@ public class CompromissoDao extends Dao{
 		try(Connection con = getConexao();
 			PreparedStatement ps = con.prepareStatement(query)){
 				
-				ps.setLong(1, codigo);
-				return ps.executeUpdate() > 0;
-			} catch (SQLException e) {
-				throw new TechnicalException("Erro ao excluir compromisso",e);
-			}
+			ps.setLong(1, codigo);
+			return ps.executeUpdate() > 0;
+			
+		} catch (SQLException e) {
+			throw new TechnicalException("Erro ao excluir compromisso",e);
+		}
 	}
 	
 	public void deleteCompromissosPorFuncionario(Long codigoFuncionario) {
@@ -92,7 +96,7 @@ public class CompromissoDao extends Dao{
 	}
 	
 	public boolean existeCompromissoPorAgenda(Long codigoAgenda) {
-	    String query ="SELECT 1 FROM compromisso WHERE rowid_agenda = ? LIMIT 1";
+	    String query =  "SELECT 1 FROM compromisso WHERE rowid_agenda = ?";
 
 	    try (Connection con = getConexao();
 	         PreparedStatement ps = con.prepareStatement(query)) {
@@ -107,6 +111,7 @@ public class CompromissoDao extends Dao{
 	        throw new TechnicalException( "Erro ao verificar compromissos da agenda.", e);
 	    }
 	}
+	
 	public CompromissoVo findByCodigo(Long codigo) {
 		String query = QUERY_SELECT + "WHERE c.rowid = ?";
 		
@@ -203,6 +208,24 @@ public class CompromissoDao extends Dao{
 			ResultSet rs = ps.executeQuery()) {
 			
 			return montarListaCompromissos(rs);
+			
+		} catch(SQLException e) {
+			throw new TechnicalException("Erro ao consultar compromissos",e);
+		}
+	}
+	
+	public List<CompromissoVo> findAllCompromissosEntre(LocalDate dataInicial, LocalDate dataFinal) {
+		String query = QUERY_SELECT + "WHERE c.dt_compromisso BETWEEN ? AND ? ORDER BY c.dt_compromisso, c.hr_compromisso";
+		
+		try(Connection con = getConexao();
+			PreparedStatement ps = con.prepareStatement(query)){
+			
+			ps.setDate(1, Date.valueOf(dataInicial));
+			ps.setDate(2, Date.valueOf(dataFinal));
+
+		    try (ResultSet rs = ps.executeQuery()) {
+		    	return montarListaCompromissos(rs);
+		    }
 			
 		} catch(SQLException e) {
 			throw new TechnicalException("Erro ao consultar compromissos",e);

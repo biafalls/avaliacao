@@ -38,4 +38,4 @@ INSERT INTO compromisso (rowid_funcionario, rowid_agenda, dt_compromisso, hr_com
     (4, 3, '2026-09-02', '15:30:00'),
     (1, 3, '2026-09-05', '13:00:00'),
     (2, 1, '2026-09-10', '08:30:00');
-    
+   

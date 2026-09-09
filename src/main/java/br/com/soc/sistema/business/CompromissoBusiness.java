@@ -10,6 +10,7 @@ import java.util.List;
 import br.com.soc.sistema.dao.CompromissoDao;
 import br.com.soc.sistema.exception.BusinessException;
 import br.com.soc.sistema.filter.CompromissoFilter;
+import br.com.soc.sistema.filter.RelatorioCompromissoFilter;
 import br.com.soc.sistema.util.NormalizadorTexto;
 import br.com.soc.sistema.vo.AgendaVo;
 import br.com.soc.sistema.vo.CompromissoVo;
@@ -91,6 +92,27 @@ public class CompromissoBusiness {
 		}
 	}
 	
+	public List<CompromissoVo> buscarCompromissosEntre(RelatorioCompromissoFilter filter) {
+		
+		validarFiltroRelatorio(filter);
+		
+		LocalDate dataInicial;
+		LocalDate dataFinal;
+
+		try {
+			dataInicial = LocalDate.parse(filter.getDataInicial());
+			dataFinal = LocalDate.parse(filter.getDataFinal());
+		
+		} catch (DateTimeParseException e) {
+			throw new BusinessException("Informe um período válido.");
+		}
+
+	    if (dataInicial.isAfter(dataFinal)) 
+	        throw new BusinessException( "A data inicial não pode ser posterior à data final.");
+
+	    return dao.findAllCompromissosEntre(dataInicial, dataFinal);
+	}
+	
 	private List<CompromissoVo> buscarPorCodigo(String valorBusca) {
 
         Long codigo = converterCodigo(valorBusca);
@@ -112,6 +134,18 @@ public class CompromissoBusiness {
 
 	    if (valorBusca == null || valorBusca.isEmpty())
 	        throw new BusinessException("Informe um valor para a busca.");
+	}
+	
+	private void validarFiltroRelatorio(RelatorioCompromissoFilter filter) {
+
+	    if (filter == null)
+	        throw new BusinessException("Filtro inválido.");
+
+	    if (filter.getDataInicial() == null || filter.getDataInicial().trim().isEmpty())
+	        throw new BusinessException("Informe a data inicial.");
+
+	    if (filter.getDataFinal() == null || filter.getDataFinal().trim().isEmpty())
+	        throw new BusinessException("Informe a data final.");
 	}
 	
 	private Long converterCodigo(String valorBusca) {
@@ -190,5 +224,4 @@ public class CompromissoBusiness {
                 break;
         }
     }
-    
 }

@@ -12,6 +12,6 @@
         <s:a action="todosFuncionarios"><s:text name="menu.funcionarios" /></s:a>
         <s:a action="todasAgendas"><s:text name="menu.agendas" /></s:a>
         <s:a action="todosCompromissos"><s:text name="menu.compromissos" /></s:a>
-        <s:a action="relatorioCompromissos"><s:text name="menu.relatorios" /></s:a>
+        <s:a action="abrirRelatorio"><s:text name="menu.relatorios" /></s:a>
     </nav>
 </header>
