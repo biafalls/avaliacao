@@ -12,6 +12,7 @@ import br.com.soc.sistema.exception.BusinessException;
 import br.com.soc.sistema.filter.CompromissoFilter;
 import br.com.soc.sistema.filter.RelatorioCompromissoFilter;
 import br.com.soc.sistema.util.NormalizadorTexto;
+import br.com.soc.sistema.util.Validador;
 import br.com.soc.sistema.vo.AgendaVo;
 import br.com.soc.sistema.vo.CompromissoVo;
 
@@ -149,13 +150,7 @@ public class CompromissoBusiness {
 	}
 	
 	private Long converterCodigo(String valorBusca) {
-	    try {
-	        return Long.parseLong(valorBusca);
-	    } catch (NumberFormatException e) {
-	        throw new BusinessException(
-	            "O código informado deve ser numérico."
-	        );
-	    }
+		return Validador.converterLong(valorBusca, "O código informado deve ser numérico.");
 	}
 	
 	private void validarCompromisso(CompromissoVo compromissoVo) {

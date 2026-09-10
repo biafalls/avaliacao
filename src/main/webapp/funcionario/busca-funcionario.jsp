@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"  pageEncoding="UTF-8"%>
 <%@ taglib prefix="s" uri="/struts-tags" %>
 <!DOCTYPE html>
 <html>
@@ -71,8 +71,8 @@
 					<tbody>
 						<s:iterator value="funcionarios" >
 							<tr>
-								<td>${rowid}</td>
-								<td>${nome}</td>
+								<td><s:property value="rowid"/></td>
+								<td><s:property value="nome"/></td>
 								<td class="text-end">
 									<s:url action="editarFuncionarios" var="editar">
 										<s:param name="funcionarioVo.rowid" value="rowid"></s:param>

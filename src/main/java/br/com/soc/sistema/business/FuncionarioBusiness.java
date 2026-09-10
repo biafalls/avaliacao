@@ -7,6 +7,7 @@ import br.com.soc.sistema.dao.FuncionarioDao;
 import br.com.soc.sistema.exception.BusinessException;
 import br.com.soc.sistema.filter.FuncionarioFilter;
 import br.com.soc.sistema.util.NormalizadorTexto;
+import br.com.soc.sistema.util.Validador;
 import br.com.soc.sistema.vo.FuncionarioVo;
 
 public class FuncionarioBusiness {
@@ -20,13 +21,11 @@ public class FuncionarioBusiness {
 	
 	public void cadastrarFuncionario(FuncionarioVo funcionarioVo) {
 		normalizarEValidarNome(funcionarioVo);
-
 	    dao.insertFuncionario(funcionarioVo);
 	}
 	
 	public void atualizarFuncionario(FuncionarioVo funcionarioVo) {
 		normalizarEValidarNome(funcionarioVo);
-
 	    boolean atualizado = dao.updateFuncionario(funcionarioVo);
 
 	    if (!atualizado)
@@ -63,7 +62,9 @@ public class FuncionarioBusiness {
 	
 	public List<FuncionarioVo> filtrarFuncionarios(FuncionarioFilter filter) {
 
-	    List<FuncionarioVo> funcionarios = new ArrayList<>();
+	    validarFiltro(filter);
+	    
+		List<FuncionarioVo> funcionarios = new ArrayList<>();
 
 	    switch (filter.getOpcoesCombo()) {
 
@@ -89,18 +90,21 @@ public class FuncionarioBusiness {
 	}
 	
 	private void normalizarEValidarNome(FuncionarioVo funcionarioVo) {
-		 String nome = NormalizadorTexto.normalizarEspacos(funcionarioVo.getNome());
-		 
-		 if (nome == null || nome.isEmpty())
-			 throw new BusinessException("O nome deve ser preenchido.");
-
-		funcionarioVo.setNome(nome);
+		 funcionarioVo.setNome(Validador.validarTextoObrigatorio(funcionarioVo.getNome(), "O nome deve ser preenchido."));
 	}
 	
 	private Long converterCodigo(String valorBusca) {
+		return Validador.converterLong(valorBusca, "O código informado deve ser numérico.");
+	}
+	
+	private void validarFiltro(FuncionarioFilter filter) {
+		
+		if (filter == null || filter.getOpcoesCombo() == null)
+	        throw new BusinessException("Selecione uma opção de busca.");
 
-	    String valorNormalizado = NormalizadorTexto.normalizarEspacos(valorBusca);
+	    String valorBusca = NormalizadorTexto.normalizarEspacos(filter.getValorBusca());
 
-	    return Long.parseLong(valorNormalizado);
+	    if (valorBusca == null || valorBusca.isEmpty())
+	        throw new BusinessException("Informe um valor para a busca.");
 	}
 }

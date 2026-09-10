@@ -4,7 +4,14 @@
 <html>
 	<head>
 		<meta charset="UTF8">
-		<title><s:text name="label.titulo.pagina.cadastro"/></title>
+		<title>
+			<s:if test="%{agendaVo.rowid != null}">
+		        <s:text name="label.titulo.pagina.atualizacao"/>
+		    </s:if>
+		    <s:else>
+		        <s:text name="label.titulo.pagina.cadastro"/>
+		    </s:else>
+    	</title>
 		<link rel="stylesheet" href="webjars/bootstrap/5.1.3/css/bootstrap.min.css">
 		<link rel="stylesheet" href="css/style.css">
 	</head>
@@ -48,18 +55,20 @@
 								<s:actionerror/>
 							</div>
 						</s:if>
-
-						<div class="row align-items-center">
-							<label for="id" class="col-sm-2 col-form-label text-center">
-								<s:text name="label.id.form"/>
-							</label>
-
-							<div class="col-sm-3">
-								<s:textfield cssClass="form-control" id="id" 
-									name="agendaVo.rowid" readonly="true"/>
+						
+						<s:if test="%{agendaVo.rowid != null}">
+							<div class="row align-items-center">
+								<label for="id" class="col-sm-2 col-form-label text-center">
+									<s:text name="label.id.form"/>
+								</label>
+	
+								<div class="col-sm-3">
+									<s:textfield cssClass="form-control" id="id" 
+										name="agendaVo.rowid" readonly="true"/>
+								</div>
 							</div>
-						</div>
-
+						</s:if>
+						
 						<div class="row mt-3">
 							<label for="nome" class="col-sm-2 col-form-label text-center">
 								<s:text name="label.nome.form"/>

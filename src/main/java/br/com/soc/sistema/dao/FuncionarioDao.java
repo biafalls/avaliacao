@@ -12,6 +12,8 @@ import br.com.soc.sistema.vo.FuncionarioVo;
 
 public class FuncionarioDao extends Dao {
 	
+	private static final String QUERY_SELECT = "SELECT rowid id, nm_funcionario nome FROM funcionario ";
+	
 	public void insertFuncionario(FuncionarioVo funcionarioVo) {
 		String query = "INSERT INTO funcionario (nm_funcionario) values (?)";
 		
@@ -83,8 +85,7 @@ public class FuncionarioDao extends Dao {
 	}
 	
 	public FuncionarioVo findByCodigo(Long codigo){
-		String query = "SELECT rowid id, nm_funcionario nome FROM funcionario "+
-								"WHERE rowid = ?";
+		String query = QUERY_SELECT + "WHERE rowid = ?";
 		
 		try(Connection con = getConexao();
 			PreparedStatement ps = con.prepareStatement(query)){
@@ -92,23 +93,20 @@ public class FuncionarioDao extends Dao {
 			ps.setLong(1, codigo);
 			
 			try(ResultSet rs = ps.executeQuery()){
-				FuncionarioVo vo =  null;
 				
-				while (rs.next()) {
-					vo = new FuncionarioVo();
-					vo.setRowid(rs.getLong("id"));
-					vo.setNome(rs.getString("nome"));	
-				}
-				return vo;
+				if (rs.next())
+			        return montarFuncionario(rs);
+
+			    return null;
 			}
+			
 		}catch (SQLException e) {
 			throw new TechnicalException("Erro ao consultar funcionário",e);
 		}
 	}
 	
 	public List<FuncionarioVo> findAllByNome(String nome) {
-		String query = "SELECT rowid id, nm_funcionario nome FROM funcionario "+
-						"WHERE nm_funcionario like ?";
+		String query = QUERY_SELECT + "WHERE nm_funcionario like ?";
 		
 		try(Connection con = getConexao();
 			PreparedStatement ps = con.prepareStatement(query)){
@@ -116,41 +114,23 @@ public class FuncionarioDao extends Dao {
 			ps.setString(1, "%"+nome+"%");
 			
 			try(ResultSet rs = ps.executeQuery()){
-				FuncionarioVo vo =  null;
-				List<FuncionarioVo> funcionarios = new ArrayList<>();
-				
-				while (rs.next()) {
-					vo = new FuncionarioVo();
-					vo.setRowid(rs.getLong("id"));
-					vo.setNome(rs.getString("nome"));	
-					
-					funcionarios.add(vo);
-				}
-				return funcionarios;
+				return montarListaFuncionarios(rs);
 			}
+			
 		} catch (SQLException e) {
 			throw new TechnicalException("Erro ao consultar funcionários",e);
 		}	
 	}
 	
 	public List<FuncionarioVo> findAllFuncionarios() {
-		String query = "SELECT rowid id, nm_funcionario nome FROM funcionario";
-		
+
 		try(Connection con = getConexao();
-			PreparedStatement  ps = con.prepareStatement(query);
+			PreparedStatement  ps = con.prepareStatement(QUERY_SELECT);
 				
 			ResultSet rs = ps.executeQuery()){
 			
-			FuncionarioVo vo =  null;
-			List<FuncionarioVo> funcionarios = new ArrayList<>();
-			while (rs.next()) {
-				vo = new FuncionarioVo();
-				vo.setRowid(rs.getLong("id"));
-				vo.setNome(rs.getString("nome"));	
-				
-				funcionarios.add(vo);
-			}
-			return funcionarios;
+			return montarListaFuncionarios(rs);
+			
 		} catch (SQLException e) {
 			throw new TechnicalException("Erro ao consultar funcionários",e);
 		}
@@ -175,5 +155,26 @@ public class FuncionarioDao extends Dao {
 
 	        return ps.executeUpdate() > 0;
 	    }
+	}
+	
+	private FuncionarioVo montarFuncionario(ResultSet rs) throws SQLException {
+
+	    FuncionarioVo vo = new FuncionarioVo();
+
+	    vo.setRowid(rs.getLong("id"));
+	    vo.setNome(rs.getString("nome"));
+
+	    return vo;
+	}
+	
+	private List<FuncionarioVo> montarListaFuncionarios(ResultSet rs) throws SQLException {
+
+	    List<FuncionarioVo> funcionarios = new ArrayList<>();
+
+	    while (rs.next()) {
+	        funcionarios.add(montarFuncionario(rs));
+	    }
+	    
+	    return funcionarios;
 	}
 }

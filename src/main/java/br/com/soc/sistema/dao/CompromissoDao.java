@@ -81,20 +81,6 @@ public class CompromissoDao extends Dao{
 		}
 	}
 	
-	public void deleteCompromissosPorFuncionario(Long codigoFuncionario) {
-	    String query = "DELETE FROM compromisso WHERE rowid_funcionario = ?";
-
-	    try (Connection con = getConexao();
-	         PreparedStatement ps = con.prepareStatement(query)) {
-
-	        ps.setLong(1, codigoFuncionario);
-	        ps.executeUpdate();
-
-	    } catch (SQLException e) {
-	        throw new TechnicalException( "Erro ao excluir compromissos do funcionário.", e);
-	    }
-	}
-	
 	public boolean existeCompromissoPorAgenda(Long codigoAgenda) {
 	    String query =  "SELECT 1 FROM compromisso WHERE rowid_agenda = ?";
 

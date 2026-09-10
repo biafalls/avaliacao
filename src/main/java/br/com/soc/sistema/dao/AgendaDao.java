@@ -12,8 +12,7 @@ import br.com.soc.sistema.exception.TechnicalException;
 import br.com.soc.sistema.vo.AgendaVo;
 
 public class AgendaDao extends Dao {
-	private static final String QUERY_SELECT_TUDO =
-	        "SELECT rowid id, nm_agenda nome, periodo_disponivel periodo FROM agenda ";
+	private static final String QUERY_SELECT_TUDO = "SELECT rowid id, nm_agenda nome, periodo_disponivel periodo FROM agenda ";
 	
 	public void insertAgenda(AgendaVo agendaVo) {
 		String query = "INSERT INTO agenda (nm_agenda, periodo_disponivel) VALUES (?, ?)";
@@ -66,17 +65,12 @@ public class AgendaDao extends Dao {
 			ps.setLong(1, codigo);
 			
 			try(ResultSet rs = ps.executeQuery()){
-				AgendaVo vo = null;
 				
-				while (rs.next()) {
-					vo = new AgendaVo();
-					vo.setRowid(rs.getLong("id"));
-					vo.setNome(rs.getString("nome"));
-					vo.setPeriodoDisponivel(
-							PeriodoDisponivel.valueOf(rs.getString("periodo")));
-				}
-				
-				return vo;
+				if (rs.next())
+			        return montarAgenda(rs);
+
+			    return null;
+			    
 			}
 		} catch (SQLException e) {
 			throw new TechnicalException("Erro ao consultar agenda",e);
@@ -92,18 +86,7 @@ public class AgendaDao extends Dao {
 			ps.setString(1, "%"+nome+"%");
 			
 			try(ResultSet rs = ps.executeQuery()){
-				AgendaVo vo = null;
-				List<AgendaVo> agendas = new ArrayList<>();
-				
-				while (rs.next()) {
-					vo = new AgendaVo();
-					vo.setRowid(rs.getLong("id"));
-					vo.setNome(rs.getString("nome"));
-					vo.setPeriodoDisponivel(
-							PeriodoDisponivel.valueOf(rs.getString("periodo")));
-					agendas.add(vo);
-				}
-				return agendas;
+				return montarListaAgendas(rs);
 			}
 			
 		} catch (SQLException e) {
@@ -120,18 +103,7 @@ public class AgendaDao extends Dao {
 				ps.setString(1, periodo.name());
 				
 				try(ResultSet rs = ps.executeQuery()){
-					AgendaVo vo = null;
-					List<AgendaVo> agendas = new ArrayList<>();
-					
-					while (rs.next()) {
-						vo = new AgendaVo();
-						vo.setRowid(rs.getLong("id"));
-						vo.setNome(rs.getString("nome"));
-						vo.setPeriodoDisponivel(
-								PeriodoDisponivel.valueOf(rs.getString("periodo")));
-						agendas.add(vo);
-					}
-					return agendas;
+					return montarListaAgendas(rs);
 				}
 				
 			} catch (SQLException e) {
@@ -146,22 +118,31 @@ public class AgendaDao extends Dao {
 				
 			ResultSet rs = ps.executeQuery()) {
 			
-			AgendaVo vo = null;
-			List<AgendaVo> agendas = new ArrayList<>();
-			
-			while(rs.next()) {
-				vo = new AgendaVo();
-				vo.setRowid(rs.getLong("id"));
-				vo.setNome(rs.getString("nome"));
-				vo.setPeriodoDisponivel(
-						PeriodoDisponivel.valueOf(rs.getString("periodo")));
-				
-				agendas.add(vo);
-			}
-			return agendas;
+			return montarListaAgendas(rs);
 			
 		} catch(SQLException e) {
 			throw new TechnicalException("Erro ao consultar agendas",e);
 		}
+	}
+	
+	private AgendaVo montarAgenda(ResultSet rs) throws SQLException {
+		AgendaVo vo = new AgendaVo();
+		
+	    vo.setRowid(rs.getLong("id"));
+	    vo.setNome(rs.getString("nome"));
+	    vo.setPeriodoDisponivel(PeriodoDisponivel.valueOf(rs.getString("periodo")));
+	    
+	    return vo;
+	}
+	
+	private List<AgendaVo> montarListaAgendas(ResultSet rs) throws SQLException {
+
+	    List<AgendaVo> agendas = new ArrayList<>();
+
+	    while (rs.next()) {
+	        agendas.add(montarAgenda(rs));
+	    }
+	    
+	    return agendas;
 	}
 }

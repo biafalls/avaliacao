@@ -33,7 +33,7 @@ public class AgendaAction extends Action {
 				addActionError("Nenhuma agenda cadastrada.");
 			
 		} catch (TechnicalException e) {
-			addActionError(e.getMessage());
+			addActionError("Não foi possível carregar as agendas. Tente novamente.");
 		}
 		
 		return SUCCESS;
@@ -51,7 +51,7 @@ public class AgendaAction extends Action {
 			carregarAgendas();
 			
 		} catch (TechnicalException e) {
-	        addActionError(e.getMessage());
+	        addActionError("Não foi possível realizar a consulta. Tente novamente.");
 	    }    
 		return SUCCESS;
 	}
@@ -73,11 +73,11 @@ public class AgendaAction extends Action {
 	        return REDIRECT;
 
 	    } catch (BusinessException e) {
-	    	addFieldError("agendaVo.nome", e.getMessage());
+	    	addActionError(e.getMessage());
 	        return INPUT;
 
 	    } catch (TechnicalException e) {
-	        addActionError(e.getMessage());
+	        addActionError("Não foi possível salvar a agenda. Tente novamente.");
 	        return INPUT;
 	    }
 	}
@@ -97,7 +97,7 @@ public class AgendaAction extends Action {
 			return SUCCESS;
 			
 		} catch (TechnicalException e) {
-	        addActionError(e.getMessage());
+	        addActionError("Não foi possível carregar a agenda para edição. Tente novamente.");
 	        return SUCCESS;
 	    }    
 	}
@@ -116,7 +116,7 @@ public class AgendaAction extends Action {
 			return SUCCESS;
 			
 		} catch (TechnicalException e) {
-	        addActionError(e.getMessage());
+	        addActionError("Não foi possível excluir a agenda. Tente novamente.");
 	        return SUCCESS;
 	    }    
 	}

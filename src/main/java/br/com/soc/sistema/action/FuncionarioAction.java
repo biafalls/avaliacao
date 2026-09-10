@@ -38,19 +38,13 @@ public class FuncionarioAction extends Action {
 	
 	public String filtrar() {	
 		  try {
-			  
-			  if (!validarFiltroPesquisa()){
-					carregarFuncionarios();
-					return SUCCESS;
-				}
-
 			  funcionarios = business.filtrarFuncionarios(filtrar);
 
 		      if (funcionarios.isEmpty())
 		    	  addActionError("Nenhum funcionário encontrado.");
 		        
-		    } catch (NumberFormatException e) {
-		        addActionError("O código informado deve ser numérico.");
+		    } catch (BusinessException e) {
+		        addActionError(e.getMessage());
 		        carregarFuncionarios();
 		        
 		    } catch (TechnicalException e) {
@@ -64,15 +58,16 @@ public class FuncionarioAction extends Action {
 	}
 	
 	public String novo() {
-		if(funcionarioVo.getNome() == null)
-			return INPUT;
-		
+		return INPUT;
+	}
+	
+	public String salvar() {
 		try {
-			if (funcionarioVo.getRowid() == null) {
+			
+			if (funcionarioVo.getRowid() == null) 
 	            business.cadastrarFuncionario(funcionarioVo);
-	        } else {
+	         else 
 	            business.atualizarFuncionario(funcionarioVo);
-	        }
 			
 			return REDIRECT;
 			
@@ -101,7 +96,7 @@ public class FuncionarioAction extends Action {
 	        return SUCCESS;
 
 	    } catch (TechnicalException e) {
-	        addActionError("Não foi possível carregar o funcionário para edição.");
+	        addActionError("Não foi possível carregar o funcionário para edição. Tente novamente.");
 	        return SUCCESS;
 	    }
 	}
@@ -123,21 +118,6 @@ public class FuncionarioAction extends Action {
 	        addActionError( "Não foi possível excluir o funcionário. Tente novamente.");
 	        return SUCCESS;
 	    }
-	}
-	
-	private boolean validarFiltroPesquisa() {
-
-	    if (filtrar == null || filtrar.isNullOpcoesCombo()) {
-	        addActionError("Selecione uma opção para realizar a busca.");
-	        return false;
-	    }
-
-	    if (filtrar.getValorBusca() == null || filtrar.getValorBusca().trim().isEmpty()) {
-	        addActionError("Informe um valor para realizar a busca.");
-	        return false;
-	    }
-
-	    return true;
 	}
 	
 	public List<OpcoesComboBuscar> getListaOpcoesCombo(){

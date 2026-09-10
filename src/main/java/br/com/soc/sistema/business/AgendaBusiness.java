@@ -9,6 +9,7 @@ import br.com.soc.sistema.enums.PeriodoDisponivel;
 import br.com.soc.sistema.exception.BusinessException;
 import br.com.soc.sistema.filter.AgendaFilter;
 import br.com.soc.sistema.util.NormalizadorTexto;
+import br.com.soc.sistema.util.Validador;
 import br.com.soc.sistema.vo.AgendaVo;
 import br.com.soc.sistema.vo.FuncionarioVo;
 
@@ -25,14 +26,12 @@ public class AgendaBusiness {
 	}
 	
 	public void cadastrarAgenda(AgendaVo agendaVo) {
-		normalizarEValidarNome(agendaVo);
-		
+		validarAgenda(agendaVo);
 		dao.insertAgenda(agendaVo);
 	}
 	
 	public void atualizarAgenda(AgendaVo agendaVo) {
-		normalizarEValidarNome(agendaVo);
-		
+		validarAgenda(agendaVo);
 		boolean atualizado = dao.updateAgenda(agendaVo);
 		
 		if (!atualizado)
@@ -96,33 +95,29 @@ public class AgendaBusiness {
 				agendas.addAll(buscarAgendasPorPeriodo(periodo));
 				break;
 			
-			default: 
-				throw new BusinessException("Opção de busca inválida para agenda.");
+			default: throw new BusinessException("Opção de busca inválida para agenda.");
 		}
 		
 		return agendas;
 	}
 	
 	private void normalizarEValidarNome(AgendaVo agendaVo) {
-		String nome = NormalizadorTexto.normalizarEspacos(agendaVo.getNome());
-		 
-		if (nome == null || nome.isEmpty())
-			 throw new BusinessException("O nome deve ser preenchido.");
-
-		agendaVo.setNome(nome);
+		agendaVo.setNome(Validador.validarTextoObrigatorio(agendaVo.getNome(), "O nome deve ser preenchido."));
 	}
 	
 	private Long converterCodigo(String valorBusca) {
+		return Validador.converterLong( valorBusca, "O código informado deve ser numérico.");
+	}
+	
+	private void validarAgenda(AgendaVo agendaVo) {
 
-	    String valorNormalizado = NormalizadorTexto.normalizarEspacos(valorBusca);
+	    if (agendaVo == null)
+	        throw new BusinessException("Agenda inválida.");
 
-	    try {
-	        return Long.parseLong(valorNormalizado);
-	    } catch (NumberFormatException e) {
-	        throw new BusinessException(
-	            "O código informado deve ser numérico."
-	        );
-	    }
+	    normalizarEValidarNome(agendaVo);
+
+	    if (agendaVo.getPeriodoDisponivel() == null)
+	        throw new BusinessException("Selecione o período disponível.");
 	}
 	
 	private void validarFiltro(AgendaFilter filter) {
@@ -130,10 +125,7 @@ public class AgendaBusiness {
 	    if (filter == null || filter.getOpcoesCombo() == null)
 	        throw new BusinessException("Selecione uma opção de busca.");
 
-	    String valorBusca =
-	        NormalizadorTexto.normalizarEspacos(
-	            filter.getValorBusca()
-	        );
+	    String valorBusca = NormalizadorTexto.normalizarEspacos(filter.getValorBusca());
 
 	    if (valorBusca == null || valorBusca.isEmpty())
 	        throw new BusinessException("Informe um valor para a busca.");

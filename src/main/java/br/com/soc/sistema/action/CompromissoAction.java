@@ -44,7 +44,7 @@ public class CompromissoAction extends Action {
 				addActionError("Nenhum compromisso cadastrado.");
 				
 		} catch (TechnicalException e) {
-			addActionError(e.getMessage());
+			addActionError("Não foi possível carregar os compromissos. Tente novamente.");
 		}
 		
 		return SUCCESS;
@@ -62,7 +62,7 @@ public class CompromissoAction extends Action {
 			carregarCompromissos();
 
 		} catch (TechnicalException e) {
-			addActionError(e.getMessage());
+			addActionError("Não foi possível realizar a consulta. Tente novamente.");
 		}
 		
 		return SUCCESS;
@@ -74,7 +74,7 @@ public class CompromissoAction extends Action {
 			return INPUT;
 			
 		} catch (TechnicalException e) {
-	        addActionError(e.getMessage());
+	        addActionError("Não foi possível carregar os dados para cadastro. Tente novamente.");
 	        return SUCCESS;
 	    }
 	}
@@ -96,27 +96,30 @@ public class CompromissoAction extends Action {
 	        return INPUT;
 
 	    } catch (TechnicalException e) {
-	        addActionError(e.getMessage());
+	        addActionError("Não foi possível salvar o compromisso. Tente novamente.");
 	        carregarCombos();
 	        return INPUT;
 	    }
 	}
 	
 	public String editar() {
+		 if (compromissoVo.getRowid() == null)
+	         return REDIRECT;
+		
 		 try {
-		        compromissoVo = business.buscarCompromissoParaEdicao(compromissoVo.getRowid());
-		        carregarCombos();
-		        return INPUT;
+			 compromissoVo = business.buscarCompromissoParaEdicao(compromissoVo.getRowid());
+		     carregarCombos();
+		     return INPUT;
 
-		    } catch (BusinessException e) {
-		        addActionError(e.getMessage());
-		        carregarCompromissos();
-		        return SUCCESS;
+		 } catch (BusinessException e) {
+			 addActionError(e.getMessage());
+			 carregarCompromissos();
+			 return SUCCESS;
 
-		    } catch (TechnicalException e) {
-		        addActionError(e.getMessage());
-		        return SUCCESS;
-		    }
+		 } catch (TechnicalException e) {
+			 addActionError("Não foi possível carregar o compromisso para edição. Tente novamente.");
+		     return SUCCESS;
+		 }
 	}
 	
 	public String excluir() {
@@ -133,7 +136,7 @@ public class CompromissoAction extends Action {
 			return SUCCESS;
 			
 		} catch (TechnicalException e) {
-	        addActionError(e.getMessage());
+	        addActionError("Não foi possível excluir o compromisso. Tente novamente.");
 	        return SUCCESS;
 	    }    
 	}
