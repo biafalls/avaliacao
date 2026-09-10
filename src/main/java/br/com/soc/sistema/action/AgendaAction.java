@@ -15,6 +15,12 @@ import br.com.soc.sistema.vo.AgendaVo;
 
 public class AgendaAction extends Action {
 	
+	private static final String ERRO_CARREGAR_AGENDAS = "Não foi possível carregar as agendas. Tente novamente.";
+	private static final String ERRO_CONSULTAR_AGENDAS = "Não foi possível consultar as agendas. Tente novamente.";
+	private static final String ERRO_SALVAR_AGENDA = "Não foi possível salvar a agenda. Tente novamente.";
+	private static final String ERRO_CARREGAR_AGENDA_EDICAO = "Não foi possível carregar a agenda para edição. Tente novamente.";
+	private static final String ERRO_EXCLUIR_AGENDA = "Não foi possível excluir a agenda. Tente novamente.";
+	
 	private List<AgendaVo> agendas = new ArrayList<>();
 	private AgendaBusiness business = new AgendaBusiness();
 	private AgendaFilter filtrar = new AgendaFilter();
@@ -33,7 +39,7 @@ public class AgendaAction extends Action {
 				addActionError("Nenhuma agenda cadastrada.");
 			
 		} catch (TechnicalException e) {
-			addActionError("Não foi possível carregar as agendas. Tente novamente.");
+			addActionError(ERRO_CARREGAR_AGENDAS);
 		}
 		
 		return SUCCESS;
@@ -44,14 +50,14 @@ public class AgendaAction extends Action {
 			agendas = business.filtrarAgendas(filtrar);
 			
 			if (agendas.isEmpty())
-				addActionError("Agenda não encontrada.");
+				addActionError("Nenhuma agenda encontrada.");
 			
 		} catch (BusinessException e) {
 			addActionError(e.getMessage());
 			carregarAgendas();
 			
 		} catch (TechnicalException e) {
-	        addActionError("Não foi possível realizar a consulta. Tente novamente.");
+	        addActionError(ERRO_CONSULTAR_AGENDAS);
 	    }    
 		return SUCCESS;
 	}
@@ -77,7 +83,7 @@ public class AgendaAction extends Action {
 	        return INPUT;
 
 	    } catch (TechnicalException e) {
-	        addActionError("Não foi possível salvar a agenda. Tente novamente.");
+	        addActionError(ERRO_SALVAR_AGENDA);
 	        return INPUT;
 	    }
 	}
@@ -97,7 +103,7 @@ public class AgendaAction extends Action {
 			return SUCCESS;
 			
 		} catch (TechnicalException e) {
-	        addActionError("Não foi possível carregar a agenda para edição. Tente novamente.");
+	        addActionError(ERRO_CARREGAR_AGENDA_EDICAO);
 	        return SUCCESS;
 	    }    
 	}
@@ -116,7 +122,7 @@ public class AgendaAction extends Action {
 			return SUCCESS;
 			
 		} catch (TechnicalException e) {
-	        addActionError("Não foi possível excluir a agenda. Tente novamente.");
+	        addActionError(ERRO_EXCLUIR_AGENDA);
 	        return SUCCESS;
 	    }    
 	}

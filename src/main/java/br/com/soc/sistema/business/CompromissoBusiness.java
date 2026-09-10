@@ -19,6 +19,10 @@ import br.com.soc.sistema.vo.CompromissoVo;
 public class CompromissoBusiness {
 	
 	private static final String COMPROMISSO_NAO_ENCONTRADO = "Compromisso não encontrado.";
+	private static final String CODIGO_INVALIDO = "O código informado deve ser numérico.";
+	private static final String OPCAO_BUSCA_OBRIGATORIA = "Selecione uma opção de busca.";
+	private static final String VALOR_BUSCA_OBRIGATORIO = "Informe um valor para a busca.";
+	
 	private CompromissoDao dao;
 	private FuncionarioBusiness funcionarioBusiness;
 	private AgendaBusiness agendaBusiness;
@@ -129,12 +133,12 @@ public class CompromissoBusiness {
 	private void validarFiltro(CompromissoFilter filter) {
 
 	    if (filter == null || filter.getOpcoesCombo() == null)
-	        throw new BusinessException("Selecione uma opção de busca.");
+	        throw new BusinessException(OPCAO_BUSCA_OBRIGATORIA);
 
 	    String valorBusca = NormalizadorTexto.normalizarEspacos(filter.getValorBusca());
 
 	    if (valorBusca == null || valorBusca.isEmpty())
-	        throw new BusinessException("Informe um valor para a busca.");
+	        throw new BusinessException(VALOR_BUSCA_OBRIGATORIO);
 	}
 	
 	private void validarFiltroRelatorio(RelatorioCompromissoFilter filter) {
@@ -150,7 +154,7 @@ public class CompromissoBusiness {
 	}
 	
 	private Long converterCodigo(String valorBusca) {
-		return Validador.converterLong(valorBusca, "O código informado deve ser numérico.");
+		return Validador.converterLong(valorBusca, CODIGO_INVALIDO);
 	}
 	
 	private void validarCompromisso(CompromissoVo compromissoVo) {
@@ -207,12 +211,12 @@ public class CompromissoBusiness {
         switch (agenda.getPeriodoDisponivel()) {
             case MANHA:
                 if (!horario.isBefore(inicioTarde))
-                    throw new BusinessException("O horário deve estar no período da manhã.");
+                    throw new BusinessException("Informe um horário no período da manhã.");
                 break;
                 
             case TARDE:
                 if (horario.isBefore(inicioTarde))
-                    throw new BusinessException("O horário deve estar no período da tarde.");
+                    throw new BusinessException("Informe um horário no período da tarde.");
                 break;
 
             case AMBOS:

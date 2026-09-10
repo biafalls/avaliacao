@@ -15,6 +15,10 @@ import br.com.soc.sistema.vo.CompromissoVo;
 
 public class RelatorioCompromissoAction extends Action{
 	
+	private static final String NENHUM_COMPROMISSO_PERIODO = "Nenhum compromisso encontrado no período informado.";
+	private static final String ERRO_GERAR_RELATORIO = "Não foi possível gerar o relatório. Tente novamente.";
+	private static final String ERRO_EXPORTAR_RELATORIO = "Não foi possível exportar o relatório para Excel. Tente novamente.";
+	
 	private CompromissoBusiness business = new CompromissoBusiness();
     private RelatorioCompromissoFilter filtro = new RelatorioCompromissoFilter();
     private List<CompromissoVo> compromissos = new ArrayList<>();
@@ -29,7 +33,7 @@ public class RelatorioCompromissoAction extends Action{
             compromissos = business.buscarCompromissosEntre(filtro);
 
             if (compromissos.isEmpty())
-            	addActionError("Nenhum compromisso encontrado no período informado.");
+            	addActionError(NENHUM_COMPROMISSO_PERIODO);
 
             return SUCCESS;
 
@@ -38,7 +42,7 @@ public class RelatorioCompromissoAction extends Action{
             return SUCCESS;
 
         } catch (TechnicalException e) {
-            addActionError("Não foi possível gerar o relatório. Tente novamente.");
+            addActionError(ERRO_GERAR_RELATORIO);
             return SUCCESS;
         }
     }
@@ -63,7 +67,7 @@ public class RelatorioCompromissoAction extends Action{
             return SUCCESS;
 
         } catch (TechnicalException e) {
-            addActionError("Não foi possível gerar o relatório Excel. Tente novamente.");
+            addActionError(ERRO_EXPORTAR_RELATORIO);
             return SUCCESS;
         }  
     }

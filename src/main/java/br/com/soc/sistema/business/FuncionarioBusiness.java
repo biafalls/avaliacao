@@ -13,6 +13,11 @@ import br.com.soc.sistema.vo.FuncionarioVo;
 public class FuncionarioBusiness {
 
 	private static final String FUNCIONARIO_NAO_ENCONTRADO ="Funcionário não encontrado.";
+	private static final String NOME_OBRIGATORIO = "O nome deve ser preenchido.";
+	private static final String CODIGO_INVALIDO = "O código informado deve ser numérico.";
+	private static final String OPCAO_BUSCA_OBRIGATORIA = "Selecione uma opção de busca.";
+	private static final String VALOR_BUSCA_OBRIGATORIO ="Informe um valor para a busca.";
+	
 	private FuncionarioDao dao;
 	
 	public FuncionarioBusiness() {
@@ -90,21 +95,21 @@ public class FuncionarioBusiness {
 	}
 	
 	private void normalizarEValidarNome(FuncionarioVo funcionarioVo) {
-		 funcionarioVo.setNome(Validador.validarTextoObrigatorio(funcionarioVo.getNome(), "O nome deve ser preenchido."));
+		 funcionarioVo.setNome(Validador.validarTextoObrigatorio(funcionarioVo.getNome(), NOME_OBRIGATORIO));
 	}
 	
 	private Long converterCodigo(String valorBusca) {
-		return Validador.converterLong(valorBusca, "O código informado deve ser numérico.");
+		return Validador.converterLong(valorBusca, CODIGO_INVALIDO);
 	}
 	
 	private void validarFiltro(FuncionarioFilter filter) {
 		
 		if (filter == null || filter.getOpcoesCombo() == null)
-	        throw new BusinessException("Selecione uma opção de busca.");
+	        throw new BusinessException(OPCAO_BUSCA_OBRIGATORIA);
 
 	    String valorBusca = NormalizadorTexto.normalizarEspacos(filter.getValorBusca());
 
 	    if (valorBusca == null || valorBusca.isEmpty())
-	        throw new BusinessException("Informe um valor para a busca.");
+	        throw new BusinessException(VALOR_BUSCA_OBRIGATORIO);
 	}
 }

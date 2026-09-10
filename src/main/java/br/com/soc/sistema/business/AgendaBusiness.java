@@ -17,6 +17,11 @@ public class AgendaBusiness {
 	
 	private static final String AGENDA_NAO_ENCONTRADA = "Agenda não encontrada.";
 	private static final String AGENDA_POSSUI_COMPROMISSOS = "Não é possível excluir uma agenda que possui compromissos cadastrados.";
+	private static final String NOME_OBRIGATORIO = "O nome deve ser preenchido.";
+	private static final String CODIGO_INVALIDO = "O código informado deve ser numérico.";
+	private static final String OPCAO_BUSCA_OBRIGATORIA = "Selecione uma opção de busca.";
+	private static final String VALOR_BUSCA_OBRIGATORIO = "Informe um valor para a busca.";
+	
 	private AgendaDao dao;
 	private CompromissoDao compromissoDao;
 	
@@ -95,18 +100,18 @@ public class AgendaBusiness {
 				agendas.addAll(buscarAgendasPorPeriodo(periodo));
 				break;
 			
-			default: throw new BusinessException("Opção de busca inválida para agenda.");
+			default: throw new BusinessException("Opção de busca inválida.");
 		}
 		
 		return agendas;
 	}
 	
 	private void normalizarEValidarNome(AgendaVo agendaVo) {
-		agendaVo.setNome(Validador.validarTextoObrigatorio(agendaVo.getNome(), "O nome deve ser preenchido."));
+		agendaVo.setNome(Validador.validarTextoObrigatorio(agendaVo.getNome(), NOME_OBRIGATORIO));
 	}
 	
 	private Long converterCodigo(String valorBusca) {
-		return Validador.converterLong( valorBusca, "O código informado deve ser numérico.");
+		return Validador.converterLong( valorBusca, CODIGO_INVALIDO);
 	}
 	
 	private void validarAgenda(AgendaVo agendaVo) {
@@ -123,11 +128,11 @@ public class AgendaBusiness {
 	private void validarFiltro(AgendaFilter filter) {
 
 	    if (filter == null || filter.getOpcoesCombo() == null)
-	        throw new BusinessException("Selecione uma opção de busca.");
+	        throw new BusinessException(OPCAO_BUSCA_OBRIGATORIA);
 
 	    String valorBusca = NormalizadorTexto.normalizarEspacos(filter.getValorBusca());
 
 	    if (valorBusca == null || valorBusca.isEmpty())
-	        throw new BusinessException("Informe um valor para a busca.");
+	        throw new BusinessException(VALOR_BUSCA_OBRIGATORIO);
 	}
 }

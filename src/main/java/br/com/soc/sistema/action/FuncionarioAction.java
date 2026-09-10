@@ -13,6 +13,12 @@ import br.com.soc.sistema.vo.FuncionarioVo;
 
 public class FuncionarioAction extends Action {
 	
+	private static final String ERRO_CARREGAR_FUNCIONARIOS = "Não foi possível carregar os funcionários. Tente novamente.";
+	private static final String ERRO_CONSULTAR_FUNCIONARIOS = "Não foi possível consultar os funcionários. Tente novamente.";
+	private static final String ERRO_SALVAR_FUNCIONARIO = "Não foi possível salvar o funcionário. Tente novamente.";
+	private static final String ERRO_CARREGAR_FUNCIONARIO_EDICAO = "Não foi possível carregar o funcionário para edição. Tente novamente.";
+	private static final String ERRO_EXCLUIR_FUNCIONARIO = "Não foi possível excluir o funcionário. Tente novamente.";
+	
 	private List<FuncionarioVo> funcionarios = new ArrayList<>();
 	private FuncionarioBusiness business = new FuncionarioBusiness();
 	private FuncionarioFilter filtrar = new FuncionarioFilter();
@@ -30,7 +36,7 @@ public class FuncionarioAction extends Action {
 	            addActionError("Nenhum funcionário cadastrado.");
 			
 		} catch (TechnicalException e) {
-	        addActionError("Não foi possível carregar os funcionários. Tente novamente.");
+	        addActionError(ERRO_CARREGAR_FUNCIONARIOS);
 	    }
 		
 		return SUCCESS;
@@ -48,10 +54,7 @@ public class FuncionarioAction extends Action {
 		        carregarFuncionarios();
 		        
 		    } catch (TechnicalException e) {
-
-		        addActionError(
-		            "Não foi possível realizar a consulta. Tente novamente."
-		        );
+		        addActionError(ERRO_CONSULTAR_FUNCIONARIOS);
 		    }
 
 		    return SUCCESS;
@@ -76,7 +79,7 @@ public class FuncionarioAction extends Action {
 	        return INPUT;
 	        
 		} catch (TechnicalException e) {
-	        addActionError( "Não foi possível salvar o funcionário. Tente novamente.");
+	        addActionError( ERRO_SALVAR_FUNCIONARIO);
 	        return INPUT;
 	    }
 	}
@@ -96,7 +99,7 @@ public class FuncionarioAction extends Action {
 	        return SUCCESS;
 
 	    } catch (TechnicalException e) {
-	        addActionError("Não foi possível carregar o funcionário para edição. Tente novamente.");
+	        addActionError(ERRO_CARREGAR_FUNCIONARIO_EDICAO);
 	        return SUCCESS;
 	    }
 	}
@@ -115,7 +118,7 @@ public class FuncionarioAction extends Action {
 	        return SUCCESS;
 
 	    } catch (TechnicalException e) {
-	        addActionError( "Não foi possível excluir o funcionário. Tente novamente.");
+	        addActionError(ERRO_EXCLUIR_FUNCIONARIO);
 	        return SUCCESS;
 	    }
 	}

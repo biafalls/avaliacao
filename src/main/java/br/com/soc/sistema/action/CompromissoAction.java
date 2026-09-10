@@ -17,6 +17,13 @@ import br.com.soc.sistema.vo.FuncionarioVo;
 
 public class CompromissoAction extends Action {
 	
+	private static final String ERRO_CARREGAR_COMPROMISSOS = "Não foi possível carregar os compromissos. Tente novamente.";
+	private static final String ERRO_CONSULTAR_COMPROMISSOS = "Não foi possível consultar os compromissos. Tente novamente.";
+	private static final String ERRO_CARREGAR_DADOS_CADASTRO = "Não foi possível carregar os dados para cadastro. Tente novamente.";
+	private static final String ERRO_SALVAR_COMPROMISSO = "Não foi possível salvar o compromisso. Tente novamente.";
+	private static final String ERRO_CARREGAR_COMPROMISSO_EDICAO = "Não foi possível carregar o compromisso para edição. Tente novamente.";
+	private static final String ERRO_EXCLUIR_COMPROMISSO = "Não foi possível excluir o compromisso. Tente novamente.";
+	
 	private List<CompromissoVo> compromissos = new ArrayList<>();
 	private CompromissoBusiness business = new CompromissoBusiness();
 	private CompromissoFilter filtrar = new CompromissoFilter();
@@ -44,7 +51,7 @@ public class CompromissoAction extends Action {
 				addActionError("Nenhum compromisso cadastrado.");
 				
 		} catch (TechnicalException e) {
-			addActionError("Não foi possível carregar os compromissos. Tente novamente.");
+			addActionError(ERRO_CARREGAR_COMPROMISSOS);
 		}
 		
 		return SUCCESS;
@@ -62,7 +69,7 @@ public class CompromissoAction extends Action {
 			carregarCompromissos();
 
 		} catch (TechnicalException e) {
-			addActionError("Não foi possível realizar a consulta. Tente novamente.");
+			addActionError(ERRO_CONSULTAR_COMPROMISSOS);
 		}
 		
 		return SUCCESS;
@@ -74,7 +81,7 @@ public class CompromissoAction extends Action {
 			return INPUT;
 			
 		} catch (TechnicalException e) {
-	        addActionError("Não foi possível carregar os dados para cadastro. Tente novamente.");
+	        addActionError(ERRO_CARREGAR_DADOS_CADASTRO);
 	        return SUCCESS;
 	    }
 	}
@@ -96,7 +103,7 @@ public class CompromissoAction extends Action {
 	        return INPUT;
 
 	    } catch (TechnicalException e) {
-	        addActionError("Não foi possível salvar o compromisso. Tente novamente.");
+	        addActionError(ERRO_SALVAR_COMPROMISSO);
 	        carregarCombos();
 	        return INPUT;
 	    }
@@ -117,7 +124,7 @@ public class CompromissoAction extends Action {
 			 return SUCCESS;
 
 		 } catch (TechnicalException e) {
-			 addActionError("Não foi possível carregar o compromisso para edição. Tente novamente.");
+			 addActionError(ERRO_CARREGAR_COMPROMISSO_EDICAO);
 		     return SUCCESS;
 		 }
 	}
@@ -136,7 +143,7 @@ public class CompromissoAction extends Action {
 			return SUCCESS;
 			
 		} catch (TechnicalException e) {
-	        addActionError("Não foi possível excluir o compromisso. Tente novamente.");
+	        addActionError(ERRO_EXCLUIR_COMPROMISSO);
 	        return SUCCESS;
 	    }    
 	}
