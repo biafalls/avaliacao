@@ -4,14 +4,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import br.com.soc.sistema.dao.CompromissoDao;
 import br.com.soc.sistema.exception.BusinessException;
 import br.com.soc.sistema.filter.CompromissoFilter;
 import br.com.soc.sistema.filter.RelatorioCompromissoFilter;
-import br.com.soc.sistema.util.NormalizadorTexto;
 import br.com.soc.sistema.util.Validador;
 import br.com.soc.sistema.vo.AgendaVo;
 import br.com.soc.sistema.vo.CompromissoVo;
@@ -19,9 +17,17 @@ import br.com.soc.sistema.vo.CompromissoVo;
 public class CompromissoBusiness {
 	
 	private static final String COMPROMISSO_NAO_ENCONTRADO = "Compromisso não encontrado.";
+	private static final String COMPROMISSO_INVALIDO = "Compromisso inválido.";
 	private static final String CODIGO_INVALIDO = "O código informado deve ser numérico.";
+	private static final String CODIGO_OBRIGATORIO = "O código do compromisso deve ser informado.";
 	private static final String OPCAO_BUSCA_OBRIGATORIA = "Selecione uma opção de busca.";
 	private static final String VALOR_BUSCA_OBRIGATORIO = "Informe um valor para a busca.";
+	private static final String FUNCIONARIO_OBRIGATORIO = "O funcionário deve ser informado.";
+	private static final String AGENDA_OBRIGATORIA = "A agenda deve ser informada.";
+	private static final String DATA_OBRIGATORIA = "A data deve ser informada.";
+	private static final String DATA_INVALIDA = "Informe uma data válida.";
+	private static final String HORARIO_OBRIGATORIO = "O horário deve ser informado.";
+	private static final String HORARIO_INVALIDO = "Informe um horário válido.";
 	
 	private CompromissoDao dao;
 	private FuncionarioBusiness funcionarioBusiness;
@@ -35,12 +41,12 @@ public class CompromissoBusiness {
 	
 	public void cadastrarCompromisso(CompromissoVo compromissoVo) {
 		validarCompromisso(compromissoVo);
-		
 		dao.insertCompromisso(compromissoVo);
 	}
 	
 	public void atualizarCompromisso(CompromissoVo compromissoVo) {
 		validarCompromisso(compromissoVo);
+		Validador.validarLongObrigatorio(compromissoVo.getRowid(), CODIGO_OBRIGATORIO);
 		
 		boolean atualizado = dao.updateCompromisso(compromissoVo);
 		
@@ -49,13 +55,17 @@ public class CompromissoBusiness {
 	}
 	
 	public void excluirCompromisso(Long codigo) {
+		codigo = Validador.validarLongObrigatorio(codigo, CODIGO_OBRIGATORIO);
+		
 		boolean excluido = dao.deleteCompromisso(codigo);
 		
 		if (!excluido)
 			throw new BusinessException(COMPROMISSO_NAO_ENCONTRADO);
 	}
 	
-	public CompromissoVo buscarCompromissoParaEdicao(Long codigo) {
+	public CompromissoVo buscarCompromissoPorCodigo(Long codigo) {
+		codigo = Validador.validarLongObrigatorio(codigo, CODIGO_OBRIGATORIO);
+
 		CompromissoVo compromisso = dao.findByCodigo(codigo);
 		
 		if (compromisso == null)
@@ -70,100 +80,57 @@ public class CompromissoBusiness {
 	
 	public List<CompromissoVo> filtrarCompromissos(CompromissoFilter filter) {
 		
-		validarFiltro(filter);
+		String valorBusca = validarFiltro(filter);
 		
-		String valorBusca =  NormalizadorTexto.normalizarEspacos(filter.getValorBusca());
-		
+		List<CompromissoVo> compromissos = new ArrayList<>();
+
 		switch (filter.getOpcoesCombo()) {
 			case ID:
-				return buscarPorCodigo(valorBusca);
+				Long codigo = Validador.converterLong(valorBusca, CODIGO_INVALIDO);
+	            CompromissoVo compromisso = dao.findByCodigo(codigo);
+
+	            if (compromisso != null)
+	                compromissos.add(compromisso);
+
+	            break;
 			
 			case NOME_FUNCIONARIO:
-				return dao.findAllByFuncionario(valorBusca);
+				compromissos.addAll(dao.findAllByFuncionario(valorBusca));
+	            break;
 				
 			case NOME_AGENDA:
-				return dao.findAllByAgenda(valorBusca);
+				compromissos.addAll(dao.findAllByAgenda(valorBusca));
+	            break;
 				
 			case DATA:
-				validarData(valorBusca);
-	            return dao.findAllByData(valorBusca);
+				validarData(valorBusca, DATA_OBRIGATORIA);
+	            compromissos.addAll(dao.findAllByData(valorBusca));
+	            break;
 			
 			case HORA:
 				validarHorario(valorBusca);
-	            return dao.findAllByHorario(valorBusca);
+	            compromissos.addAll(dao.findAllByHorario(valorBusca));
+	            break;
 			
 			default:
-				throw new BusinessException("Opção de busca inválida.");
+				throw new BusinessException("Opção de busca inválida para compromisso.");
 		}
+		
+		return compromissos;
 	}
 	
 	public List<CompromissoVo> buscarCompromissosEntre(RelatorioCompromissoFilter filter) {
-		
-		validarFiltroRelatorio(filter);
-		
-		LocalDate dataInicial;
-		LocalDate dataFinal;
-
-		try {
-			dataInicial = LocalDate.parse(filter.getDataInicial());
-			dataFinal = LocalDate.parse(filter.getDataFinal());
-		
-		} catch (DateTimeParseException e) {
-			throw new BusinessException("Informe um período válido.");
-		}
-
-	    if (dataInicial.isAfter(dataFinal)) 
-	        throw new BusinessException( "A data inicial não pode ser posterior à data final.");
-
-	    return dao.findAllCompromissosEntre(dataInicial, dataFinal);
-	}
-	
-	private List<CompromissoVo> buscarPorCodigo(String valorBusca) {
-
-        Long codigo = converterCodigo(valorBusca);
-
-        CompromissoVo compromisso = dao.findByCodigo(codigo);
-
-        if (compromisso == null)
-            return new ArrayList<>();
-
-        return Arrays.asList(compromisso);
-    }
-	
-	private void validarFiltro(CompromissoFilter filter) {
-
-	    if (filter == null || filter.getOpcoesCombo() == null)
-	        throw new BusinessException(OPCAO_BUSCA_OBRIGATORIA);
-
-	    String valorBusca = NormalizadorTexto.normalizarEspacos(filter.getValorBusca());
-
-	    if (valorBusca == null || valorBusca.isEmpty())
-	        throw new BusinessException(VALOR_BUSCA_OBRIGATORIO);
-	}
-	
-	private void validarFiltroRelatorio(RelatorioCompromissoFilter filter) {
-
-	    if (filter == null)
-	        throw new BusinessException("Filtro inválido.");
-
-	    if (filter.getDataInicial() == null || filter.getDataInicial().trim().isEmpty())
-	        throw new BusinessException("Informe a data inicial.");
-
-	    if (filter.getDataFinal() == null || filter.getDataFinal().trim().isEmpty())
-	        throw new BusinessException("Informe a data final.");
-	}
-	
-	private Long converterCodigo(String valorBusca) {
-		return Validador.converterLong(valorBusca, CODIGO_INVALIDO);
+		LocalDate[] periodo = validarFiltroRelatorio(filter);
+		return dao.findAllCompromissosEntre(periodo[0], periodo[1]);
 	}
 	
 	private void validarCompromisso(CompromissoVo compromissoVo) {
 		if (compromissoVo == null)
-			throw new BusinessException("Compromisso inválido.");
+			throw new BusinessException(COMPROMISSO_INVALIDO);
 		  
 		validarFuncionario(compromissoVo);
         AgendaVo agenda = validarAgenda(compromissoVo);
-        validarData(compromissoVo.getData());
+        validarData(compromissoVo.getData(), DATA_OBRIGATORIA);
         LocalTime horario = validarHorario(compromissoVo.getHorario());
         
         validarPeriodoDisponivel(agenda, horario);
@@ -171,37 +138,37 @@ public class CompromissoBusiness {
 	
     private void validarFuncionario(CompromissoVo compromissoVo) {
         if (compromissoVo.getFuncionario() == null || compromissoVo.getFuncionario().getRowid() == null) 
-            throw new BusinessException("Selecione um funcionário.");
+            throw new BusinessException(FUNCIONARIO_OBRIGATORIO);
         
-        funcionarioBusiness.buscarFuncionarioParaEdicao(compromissoVo.getFuncionario().getRowid());
+        funcionarioBusiness.buscarFuncionarioPorCodigo(compromissoVo.getFuncionario().getRowid());
     }
 
     private AgendaVo validarAgenda(CompromissoVo compromissoVo) {
         if (compromissoVo.getAgenda() == null || compromissoVo.getAgenda().getRowid() == null) 
-            throw new BusinessException("Selecione uma agenda.");
+            throw new BusinessException(AGENDA_OBRIGATORIA);
         
-        return agendaBusiness.buscarAgendaParaEdicao(compromissoVo.getAgenda().getRowid());
+        return agendaBusiness.buscarAgendaPorCodigo(compromissoVo.getAgenda().getRowid());
     }
 
-    private void validarData(String data) {
+    private LocalDate validarData(String data, String mensagemObrigatoria) {
         if (data == null || data.trim().isEmpty())
-            throw new BusinessException("Informe a data.");
+            throw new BusinessException(mensagemObrigatoria);
 
         try {
-            LocalDate.parse(data);
+            return LocalDate.parse(data);
         } catch (DateTimeParseException e) {
-            throw new BusinessException("Informe uma data válida.");
+            throw new BusinessException(DATA_INVALIDA);
         }
     }
 
     private LocalTime validarHorario(String horario) {
         if (horario == null || horario.trim().isEmpty())
-            throw new BusinessException("Informe o horário.");
+            throw new BusinessException(HORARIO_OBRIGATORIO);
 
         try {
             return LocalTime.parse(horario);
         } catch (DateTimeParseException e) {
-            throw new BusinessException("Informe um horário válido.");
+            throw new BusinessException(HORARIO_INVALIDO);
         }
     }
 	
@@ -223,4 +190,26 @@ public class CompromissoBusiness {
                 break;
         }
     }
+    
+    private String validarFiltro(CompromissoFilter filter) {
+		
+		if (filter == null || filter.getOpcoesCombo() == null)
+	        throw new BusinessException(OPCAO_BUSCA_OBRIGATORIA);
+
+	    return Validador.validarTextoObrigatorio(filter.getValorBusca(),VALOR_BUSCA_OBRIGATORIO);
+	}
+	
+	private LocalDate[] validarFiltroRelatorio(RelatorioCompromissoFilter filter) {
+
+	    if (filter == null)
+	        throw new BusinessException("Filtro inválido.");
+
+	    LocalDate dataInicial = validarData(filter.getDataInicial(), "A data inicial deve ser informada.");
+	    LocalDate dataFinal = validarData(filter.getDataFinal(), "A data final deve ser informada.");
+
+	    if (dataInicial.isAfter(dataFinal))
+	    	throw new BusinessException("A data inicial não pode ser posterior à data final.");
+	    
+	    return new LocalDate[] {dataInicial,dataFinal};
+	}
 }

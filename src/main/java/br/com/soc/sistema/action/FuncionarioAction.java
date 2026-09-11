@@ -90,7 +90,7 @@ public class FuncionarioAction extends Action {
 		
 		try {
 
-	        funcionarioVo = business.buscarFuncionarioParaEdicao(funcionarioVo.getRowid());
+	        funcionarioVo = business.buscarFuncionarioPorCodigo(funcionarioVo.getRowid());
 	        return INPUT;
 
 	    } catch (BusinessException e) {

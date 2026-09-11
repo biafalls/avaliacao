@@ -6,15 +6,16 @@ import java.util.List;
 import br.com.soc.sistema.dao.FuncionarioDao;
 import br.com.soc.sistema.exception.BusinessException;
 import br.com.soc.sistema.filter.FuncionarioFilter;
-import br.com.soc.sistema.util.NormalizadorTexto;
 import br.com.soc.sistema.util.Validador;
 import br.com.soc.sistema.vo.FuncionarioVo;
 
 public class FuncionarioBusiness {
 
 	private static final String FUNCIONARIO_NAO_ENCONTRADO ="Funcionário não encontrado.";
+	private static final String FUNCIONARIO_INVALIDO = "Funcionário inválido.";
 	private static final String NOME_OBRIGATORIO = "O nome deve ser preenchido.";
 	private static final String CODIGO_INVALIDO = "O código informado deve ser numérico.";
+	private static final String CODIGO_OBRIGATORIO = "O código do funcionário deve ser informado.";
 	private static final String OPCAO_BUSCA_OBRIGATORIA = "Selecione uma opção de busca.";
 	private static final String VALOR_BUSCA_OBRIGATORIO ="Informe um valor para a busca.";
 	
@@ -25,12 +26,14 @@ public class FuncionarioBusiness {
 	}
 	
 	public void cadastrarFuncionario(FuncionarioVo funcionarioVo) {
-		normalizarEValidarNome(funcionarioVo);
+		validarFuncionario(funcionarioVo);
 	    dao.insertFuncionario(funcionarioVo);
 	}
 	
 	public void atualizarFuncionario(FuncionarioVo funcionarioVo) {
-		normalizarEValidarNome(funcionarioVo);
+		validarFuncionario(funcionarioVo);
+		Validador.validarLongObrigatorio(funcionarioVo.getRowid(), CODIGO_OBRIGATORIO);
+		
 	    boolean atualizado = dao.updateFuncionario(funcionarioVo);
 
 	    if (!atualizado)
@@ -38,14 +41,17 @@ public class FuncionarioBusiness {
 	}
 	
 	public void excluirFuncionario(Long codigo) {
+		codigo = Validador.validarLongObrigatorio(codigo, CODIGO_OBRIGATORIO);
+		
 	    boolean excluido = dao.deleteFuncionarioComCompromisso(codigo);
 
 	    if (!excluido)
 	        throw new BusinessException(FUNCIONARIO_NAO_ENCONTRADO);
 	}
 	
-	public FuncionarioVo buscarFuncionarioParaEdicao(Long codigo) {
-
+	public FuncionarioVo buscarFuncionarioPorCodigo(Long codigo) {
+		codigo = Validador.validarLongObrigatorio(codigo, CODIGO_OBRIGATORIO);
+		
 		FuncionarioVo funcionario = dao.findByCodigo(codigo);
 
 	    if (funcionario == null)
@@ -56,9 +62,9 @@ public class FuncionarioBusiness {
 
 	public List<FuncionarioVo> buscarFuncionariosPorNome(String nome) {
 
-	    String nomeNormalizado = NormalizadorTexto.normalizarEspacos(nome);
+	   nome = Validador.validarTextoObrigatorio(nome, NOME_OBRIGATORIO);
 
-	    return dao.findAllByNome(nomeNormalizado);
+	    return dao.findAllByNome(nome);
 	}
 	
 	public List<FuncionarioVo>  buscarTodosOsFuncionarios() {
@@ -67,7 +73,7 @@ public class FuncionarioBusiness {
 	
 	public List<FuncionarioVo> filtrarFuncionarios(FuncionarioFilter filter) {
 
-	    validarFiltro(filter);
+	    String valorBusca = validarFiltro(filter);
 	    
 		List<FuncionarioVo> funcionarios = new ArrayList<>();
 
@@ -75,7 +81,7 @@ public class FuncionarioBusiness {
 
 	        case ID:
 
-	            Long codigo = converterCodigo(filter.getValorBusca());
+	            Long codigo = Validador.converterLong(valorBusca,CODIGO_INVALIDO);
 
 	            FuncionarioVo funcionario = dao.findByCodigo(codigo);
 
@@ -84,7 +90,7 @@ public class FuncionarioBusiness {
 	            break;
 
 	        case NOME:
-	            funcionarios.addAll(buscarFuncionariosPorNome(filter.getValorBusca()));
+	            funcionarios.addAll(buscarFuncionariosPorNome(valorBusca));
 	            break;
 	            
 	        default:
@@ -94,22 +100,19 @@ public class FuncionarioBusiness {
 	    return funcionarios;
 	}
 	
-	private void normalizarEValidarNome(FuncionarioVo funcionarioVo) {
-		 funcionarioVo.setNome(Validador.validarTextoObrigatorio(funcionarioVo.getNome(), NOME_OBRIGATORIO));
+	private void validarFuncionario(FuncionarioVo funcionarioVo) {
+
+	    if (funcionarioVo == null)
+	        throw new BusinessException(FUNCIONARIO_INVALIDO);
+
+	    funcionarioVo.setNome(Validador.validarTextoObrigatorio(funcionarioVo.getNome(), NOME_OBRIGATORIO));
 	}
 	
-	private Long converterCodigo(String valorBusca) {
-		return Validador.converterLong(valorBusca, CODIGO_INVALIDO);
-	}
-	
-	private void validarFiltro(FuncionarioFilter filter) {
+	private String validarFiltro(FuncionarioFilter filter) {
 		
 		if (filter == null || filter.getOpcoesCombo() == null)
 	        throw new BusinessException(OPCAO_BUSCA_OBRIGATORIA);
 
-	    String valorBusca = NormalizadorTexto.normalizarEspacos(filter.getValorBusca());
-
-	    if (valorBusca == null || valorBusca.isEmpty())
-	        throw new BusinessException(VALOR_BUSCA_OBRIGATORIO);
+	    return Validador.validarTextoObrigatorio(filter.getValorBusca(),VALOR_BUSCA_OBRIGATORIO);
 	}
 }

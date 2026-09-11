@@ -114,7 +114,7 @@ public class CompromissoAction extends Action {
 	         return REDIRECT;
 		
 		 try {
-			 compromissoVo = business.buscarCompromissoParaEdicao(compromissoVo.getRowid());
+			 compromissoVo = business.buscarCompromissoPorCodigo(compromissoVo.getRowid());
 		     carregarCombos();
 		     return INPUT;
 

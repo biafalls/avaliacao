@@ -93,7 +93,7 @@ public class AgendaAction extends Action {
 			return REDIRECT;
 		
 		try {
-			agendaVo = business.buscarAgendaParaEdicao(agendaVo.getRowid());
+			agendaVo = business.buscarAgendaPorCodigo(agendaVo.getRowid());
 			codigoPeriodo = agendaVo.getPeriodoDisponivel().getCodigo();
 			return INPUT;
 			

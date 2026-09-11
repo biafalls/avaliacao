@@ -8,13 +8,23 @@ public class Validador {
 	}
 
 	public static String validarTextoObrigatorio(String valor, String mensagem) {
-
+		if (valor == null)
+	        throw new BusinessException(mensagem);
+		
 		String normalizado = NormalizadorTexto.normalizarEspacos(valor);
 
-		if (normalizado == null || normalizado.isEmpty())
+		if (normalizado.isEmpty())
 			throw new BusinessException(mensagem);
 
 		return normalizado;
+	}
+	
+	public static Long validarLongObrigatorio(Long valor, String mensagem) {
+
+	    if (valor == null)
+	        throw new BusinessException(mensagem);
+
+	    return valor;
 	}
 
 	public static Long converterLong(String valor, String mensagem) {
