@@ -6,30 +6,28 @@ import java.time.format.DateTimeFormatter;
 
 public class FormatadorDataHora {
 
-    private static final DateTimeFormatter FORMATO_DATA =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static final DateTimeFormatter FORMATO_DATA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    private static final DateTimeFormatter FORMATO_HORA =
-            DateTimeFormatter.ofPattern("HH:mm");
+	private static final DateTimeFormatter FORMATO_HORA = DateTimeFormatter.ofPattern("HH:mm");
 
-    private FormatadorDataHora() {
-    }
+	private FormatadorDataHora() {
+	}
 
-    public static String formatarData(String data) {
-        if (data == null || data.isEmpty())
-            return "";
+	public static String formatarData(String data) {
+		if (data == null || data.isEmpty())
+			return "";
 
-        LocalDate localDate = LocalDate.parse(data);
+		LocalDate localDate = LocalDate.parse(data);
 
-        return localDate.format(FORMATO_DATA);
-    }
+		return localDate.format(FORMATO_DATA);
+	}
 
-    public static String formatarHora(String hora) {
-        if (hora == null || hora.isEmpty())
-            return "";
+	public static String formatarHora(String hora) {
+		if (hora == null || hora.isEmpty())
+			return "";
 
-        LocalTime localTime = LocalTime.parse(hora);
+		LocalTime localTime = LocalTime.parse(hora);
 
-        return localTime.format(FORMATO_HORA);
-    }
+		return localTime.format(FORMATO_HORA);
+	}
 }

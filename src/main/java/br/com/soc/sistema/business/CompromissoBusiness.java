@@ -34,9 +34,13 @@ public class CompromissoBusiness {
 	private AgendaBusiness agendaBusiness;
 	
 	public CompromissoBusiness() {
-		this.dao = new CompromissoDao();
-		this.funcionarioBusiness = new FuncionarioBusiness();
-		this.agendaBusiness = new AgendaBusiness();
+		this(new CompromissoDao(), new FuncionarioBusiness(), new AgendaBusiness());
+	}
+
+	public CompromissoBusiness(CompromissoDao dao, FuncionarioBusiness funcionarioBusiness, AgendaBusiness agendaBusiness) {
+		this.dao = dao;
+		this.funcionarioBusiness = funcionarioBusiness;
+		this.agendaBusiness = agendaBusiness;
 	}
 	
 	public void cadastrarCompromisso(CompromissoVo compromissoVo) {

@@ -28,8 +28,12 @@ public class AgendaBusiness {
 	private CompromissoDao compromissoDao;
 	
 	public AgendaBusiness() {
-		this.dao = new AgendaDao();
-		this.compromissoDao = new CompromissoDao();
+		this(new AgendaDao(), new CompromissoDao());
+	}
+	
+	public AgendaBusiness(AgendaDao dao, CompromissoDao compromissoDao) {
+	    this.dao = dao;
+	    this.compromissoDao = compromissoDao;
 	}
 	
 	public void cadastrarAgenda(AgendaVo agendaVo) {

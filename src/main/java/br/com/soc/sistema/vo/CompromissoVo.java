@@ -1,8 +1,5 @@
 package br.com.soc.sistema.vo;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 import br.com.soc.sistema.util.FormatadorDataHora;
 
 public class CompromissoVo {
